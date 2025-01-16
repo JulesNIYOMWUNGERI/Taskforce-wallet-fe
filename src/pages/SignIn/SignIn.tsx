@@ -1,9 +1,13 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import InputField from '../../components/InputField/InputField';
-import Button from '../../components/Button/Button';
 import { useFormik } from 'formik';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
 import { LoginSchema } from '../../utils/Validations/Validation';
+import { useDispatch, useSelector } from 'react-redux';
+import { apis } from '../../store/apis';
+import { useNavigate } from 'react-router-dom';
+import { RootState } from '../../store/store';
+import { Button } from 'primereact/button';
 
 const inputFieldStylingProps = {
     container: {
@@ -20,7 +24,15 @@ const inputFieldStylingProps = {
 };
 
 const SignIn = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+
+  const {
+    loading
+  } = useSelector((state: RootState) =>  ({
+    loading: state.signin.loading,
+  }));
 
   const formik = useFormik({
     initialValues: {
@@ -28,8 +40,12 @@ const SignIn = () => {
         password: '',
     },
     validationSchema: LoginSchema,
-    onSubmit: async (values) => {
-        console.log(values)
+    onSubmit: async(values) => {
+        const res = await dispatch(apis.signin(values) as any);
+
+        if(res?.payload?.access_token) {
+          navigate('/wallet?currentPage=Accounts')
+        }
     }
   });
 
@@ -95,9 +111,10 @@ const SignIn = () => {
               </div>
 
               <Button
-                // onClick={() => navigate('/signin')}
-                styling={`bg-[#FFA500] text-[16px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[10px] rounded-[50px] w-full mt-4`}
-                value='Login'
+                type="submit"
+                label="Login"
+                className={`bg-[#FFA500] text-[16px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[10px] rounded-[50px] w-full mt-4`}
+                loading={loading}
               />
 
               <div className="flex justify-center items-center gap-1 mt-4">
