@@ -1,5 +1,4 @@
-import React from 'react'
-import Button from '../../components/Button/Button'
+import { Button } from 'primereact/button';
 import { useNavigate } from 'react-router-dom'
 
 const Home = () => {
@@ -20,14 +19,16 @@ const Home = () => {
 
             <div className='flex flex-col justify-center items-center gap-5 sm:w-[35%]'>
                 <Button
+                    type="submit"
+                    label="Sign In"
+                    className={`bg-[#FFA500] text-[16px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[10px] rounded-[50px] w-full`}
                     onClick={() => navigate('/signin')}
-                    styling={`bg-[#FFA500] text-[16px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[10px] rounded-[50px] w-full`}
-                    value='Sign In'
                 />
                 <Button
+                    type="submit"
+                    label="Sign Up"
+                    className={`bg-transparent text-[16px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-[#FFA500] py-[10px] rounded-[50px] w-full`}
                     onClick={() => navigate('/signup')}
-                    styling={`bg-transparent text-[16px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-[#FFA500] py-[10px] rounded-[50px] w-full`}
-                    value='Sign Up'
                 />
             </div>
         </div>

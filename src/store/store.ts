@@ -12,6 +12,10 @@ import {
 import signin from './slices/signin'
 import signup from './slices/signup'
 import getAccounts from './slices/Accounts/getAccounts'
+import createAccount from './slices/Accounts/createAccount'
+import updateAccount from './slices/Accounts/updateAccount'
+import deleteAccount from './slices/Accounts/deleteAccount'
+import getTransactions from './slices/Transactions/getTransactions'
 
 const persistConfig = {
     key: 'root',
@@ -22,7 +26,11 @@ const persistConfig = {
 const reducer = combineReducers({
   signin,
   signup,
-  getAccounts
+  getAccounts,
+  createAccount,
+  updateAccount,
+  deleteAccount,
+  getTransactions
 });
 
 const persistedReducer = persistReducer(persistConfig, reducer);

@@ -1,5 +1,4 @@
 import React, { useState } from 'react'
-import Button from '../Button/Button';
 import Table from '../Table/Table';
 import { EditIcon, TrashIcon } from '../Images/Images';
 import { useFormik } from 'formik';
@@ -102,11 +101,11 @@ const Categories = () => {
             <div className='w-full flex justify-between items-center'>
                 <h1 className='font-extrabold text-[29px] text-[#71808e]'>Categories</h1>
 
-                <Button
+                {/* <Button
                     onClick={() => setIsDialogVisible(true)}
                     styling={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
                     value='Create Account'
-                />
+                /> */}
             </div>
 
             <p className='font-bold text-[#656c73] text-[16px] text-justify'>
@@ -218,11 +217,11 @@ const Categories = () => {
                 </div>
             
                 <div className='w-full flex justify-center items-center'>
-                    <Button
+                    {/* <Button
                         onClick={() => setIsDialogVisible(true)}
                         styling={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
                         value='Create Account'
-                    />
+                    /> */}
                 </div>
             </div>
         </Dialog>
