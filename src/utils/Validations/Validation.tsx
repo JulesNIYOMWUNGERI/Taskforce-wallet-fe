@@ -26,3 +26,14 @@ export const SignUpSchema = Yup.object().shape({
     password: Yup.string()
       .required("Password is required!"),
 });
+
+export const AccountSchema = Yup.object().shape({
+    name: Yup.string()
+      .required("Name is required!"),
+    balance: Yup.number()
+      .required("Balance is required!"),
+    type: Yup.string()
+      .required("Type is required!"),
+    currency: Yup.string()
+      .required("Currency is required!"),
+});

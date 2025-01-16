@@ -1,11 +1,15 @@
-import React, { useState } from 'react'
-import Button from '../Button/Button';
+import React, { useEffect, useState } from 'react'
 import Table from '../Table/Table';
 import { EditIcon, TrashIcon } from '../Images/Images';
 import { useFormik } from 'formik';
 import { Dialog } from 'primereact/dialog';
 import InputField from '../InputField/InputField';
 import { Dropdown } from 'primereact/dropdown';
+import { Button } from 'primereact/button';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
+import TableLoading from '../loader/TableLoading';
+import { apis } from '../../store/apis';
 
 const inputFieldStylingProps = {
     container: {
@@ -37,15 +41,27 @@ const SHOP_CATEGORIES = [
 ]
 
 const Transactions = () => {
+  const dispatch = useDispatch();
   const [deletingId, setDeletingId] = useState<string | number | null>(null);
+  const [isUpdating, setIsUpdating] = useState(false)
   const [deleting, setDeleting] = useState(false);
   const [isDialogVisible, setIsDialogVisible] = useState(false);
-  const [placeholderData, setPlaceholderData] = useState([
+  const [transactionsData, setTransactionsData] = useState([
     { name: 'Bank of Kigali', type: 'Income', amount: '50000.00', transactionDate: '2025-01-14 12:00:00', description: 'sunt in culpa qui officia deserunt mollit anim id est laborum.' },
     { name: 'MTN Mobile Money', type: 'Expense', amount: '50000.00', transactionDate: '2025-01-14 12:00:00', description: 'sunt in culpa qui officia deserunt mollit anim id est laborum.' },
     { name: 'Cash', type: 'Income', amount: '50000.00', transactionDate: '2025-01-14 12:00:00', description: 'sunt in culpa qui officia deserunt mollit anim id est laborum.' },
     { name: 'Equity', type: 'Expense', amount: '50000.00', transactionDate: '2025-01-14 12:00:00', description: 'sunt in culpa qui officia deserunt mollit anim id est laborum.' },
   ]);
+
+  const { 
+    fetching,
+    transactions,
+    user,
+  } = useSelector((state: RootState) =>  ({
+    fetching: state.getTransactions.fetching,
+    transactions: state.getTransactions.transactions,
+    user: state.signin.data,
+  }));
 
   const formik = useFormik({
     initialValues: {
@@ -59,6 +75,20 @@ const Transactions = () => {
         console.log(values)
     }
   });
+
+  useEffect(() => {
+    if (user?.access_token) {
+        const token = user?.access_token
+        dispatch(apis?.getTransactions(token) as any);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if(transactions) {
+        const sortedTransactions: any[] = [...transactions].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        setTransactionsData(sortedTransactions)
+    }
+  }, [transactions]);
 
 
   const columns = [
@@ -104,9 +134,14 @@ const Transactions = () => {
                 <h1 className='font-extrabold text-[29px] text-[#71808e]'>Transactions</h1>
 
                 <Button
-                    onClick={() => setIsDialogVisible(true)}
-                    styling={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
-                    value='Create Transactions'
+                    type="submit"
+                    label="Create Transactions"
+                    className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
+                    // loading={saving}
+                    onClick={() => {
+                        setIsDialogVisible(true);
+                        setIsUpdating(false)
+                    }}
                 />
             </div>
 
@@ -123,11 +158,15 @@ const Transactions = () => {
         </div>
 
         <div className='bg-[#f6dcab] py-8 px-4 rounded-lg'>
-            <Table
-                actionTemplate={actionTemplate}
-                columns={columns}
-                data={placeholderData}
-            />
+            {fetching ? (
+                <TableLoading />
+            ) : (
+                <Table
+                    actionTemplate={actionTemplate}
+                    columns={columns}
+                    data={transactionsData}
+                />
+            )}
         </div>
 
         <Dialog 
@@ -218,9 +257,10 @@ const Transactions = () => {
             
                 <div className='w-full flex justify-center items-center'>
                     <Button
-                        onClick={() => setIsDialogVisible(true)}
-                        styling={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
-                        value='Create Transaction'
+                        type="submit"
+                        label={`${isUpdating ? "Update" : "Create"} Transaction`}
+                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px] w-full`}
+                        // loading={saving || updating}
                     />
                 </div>
             </div>
