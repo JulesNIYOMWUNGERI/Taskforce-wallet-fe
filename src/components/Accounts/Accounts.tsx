@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import Button from '../Button/Button';
 import Table from '../Table/Table';
 import { EditIcon, TrashIcon } from '../Images/Images';
@@ -6,6 +6,10 @@ import { useFormik } from 'formik';
 import { Dialog } from 'primereact/dialog';
 import InputField from '../InputField/InputField';
 import { Dropdown } from 'primereact/dropdown';
+import { useDispatch, useSelector } from 'react-redux';
+import { apis } from '../../store/apis';
+import { RootState } from '../../store/store';
+import TableLoading from '../loader/TableLoading';
 
 const inputFieldStylingProps = {
     container: {
@@ -37,15 +41,21 @@ const SHOP_CATEGORIES = [
 ]
 
 const Accounts = () => {
+  const dispatch = useDispatch();
   const [deletingId, setDeletingId] = useState<string | number | null>(null);
   const [deleting, setDeleting] = useState(false);
   const [isDialogVisible, setIsDialogVisible] = useState(false);
-  const [placeholderData, setPlaceholderData] = useState([
-    { name: 'Bank of Kigali', type: 'Bank', balance: '50000.00', currency: 'RWF' },
-    { name: 'MTN Mobile Money', type: 'Mobile Money', balance: '50000.00', currency: 'RWF' },
-    { name: 'Cash', type: 'Cash', balance: '50000.00', currency: 'RWF' },
-    { name: 'Equity', type: 'Credit Card', balance: '50000.00', currency: 'RWF' },
-  ]);
+  const [accountsData, setAccountsData] = useState([]);
+
+  const { 
+    fetching,
+    accounts,
+    user
+  } = useSelector((state: RootState) =>  ({
+    fetching: state.getAccounts.fetching,
+    accounts: state.getAccounts.accounts,
+    user: state.signin.data,
+  }));
 
   const formik = useFormik({
     initialValues: {
@@ -59,6 +69,19 @@ const Accounts = () => {
         console.log(values)
     }
   });
+
+  useEffect(() => {
+    if (user?.access_token) {
+        const token = user?.access_token
+        dispatch(apis?.getAccounts(token) as any);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if(accounts) {
+        setAccountsData(accounts)
+    }
+  }, [accounts]);
 
 
   const columns = [
@@ -122,11 +145,13 @@ const Accounts = () => {
         </div>
 
         <div className='bg-[#f6dcab] py-8 px-4 rounded-lg'>
-            <Table
+            {fetching ? (
+                <TableLoading />
+            ) : (<Table
                 actionTemplate={actionTemplate}
                 columns={columns}
-                data={placeholderData}
-            />
+                data={accountsData}
+            />)}
         </div>
 
         <Dialog 
