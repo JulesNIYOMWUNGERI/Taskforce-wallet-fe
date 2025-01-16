@@ -11,6 +11,7 @@ import {
 } from 'redux-persist'
 import signin from './slices/signin'
 import signup from './slices/signup'
+import getAccounts from './slices/Accounts/getAccounts'
 
 const persistConfig = {
     key: 'root',
@@ -21,6 +22,7 @@ const persistConfig = {
 const reducer = combineReducers({
   signin,
   signup,
+  getAccounts
 });
 
 const persistedReducer = persistReducer(persistConfig, reducer);

@@ -33,6 +33,26 @@ const signup = createAsyncThunk(
     }
 );
 
+const getAccounts = createAsyncThunk(
+    "getAccounts",
+    async (token: string, { rejectWithValue }) => {
+      try {
+        const headers = {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        };
+
+        const response = await api.get(`/accounts`, {headers});
+
+        return response.data;
+      } catch (error: unknown) {
+        const axiosError = error as AxiosError;
+        toast.error((axiosError?.response?.data as { message: string })?.message)
+        return rejectWithValue({ error: axiosError?.response });
+      }
+    }
+);
+
 const reset = createAction('reset');
 
-export const apis = { signin, signup, reset }
+export const apis = { signin, signup, getAccounts, reset }
