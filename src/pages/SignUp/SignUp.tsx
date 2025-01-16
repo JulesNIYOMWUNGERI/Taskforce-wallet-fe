@@ -1,9 +1,14 @@
+import { useState } from 'react';
 import { useFormik } from 'formik';
-import React, { useState } from 'react';
 import InputField from '../../components/InputField/InputField';
 import { FaEye, FaEyeSlash } from 'react-icons/fa';
-import Button from '../../components/Button/Button';
 import { SignUpSchema } from '../../utils/Validations/Validation';
+import { useDispatch, useSelector } from 'react-redux';
+import { apis } from '../../store/apis';
+import { Button } from 'primereact/button';
+import { RootState } from '../../store/store';
+import { toast } from 'react-toastify';
+import { useNavigate } from 'react-router-dom';
 
 const inputFieldStylingProps = {
   container: {
@@ -20,7 +25,15 @@ const inputFieldStylingProps = {
 };
 
 const SignUp = () => {
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [showPassword, setShowPassword] = useState(false);
+
+  const {
+    registering
+  } = useSelector((state: RootState) =>  ({
+    registering: state.signup.registering,
+  }));
 
   const formik = useFormik({
     initialValues: {
@@ -30,7 +43,13 @@ const SignUp = () => {
     },
     validationSchema: SignUpSchema,
     onSubmit: async (values) => {
-        console.log(values)
+        const res = await dispatch(apis.signup(values) as any);
+
+        if(res?.payload?.message) { 
+          toast.success(res?.payload?.message);
+
+          navigate('/signin')
+        }
     }
   });
 
@@ -116,9 +135,10 @@ const SignUp = () => {
               </div>
 
               <Button
-                // onClick={() => navigate('/signin')}
-                styling={`bg-[#FFA500] text-[16px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[10px] rounded-[50px] w-full mt-4`}
-                value='SignUp'
+                type="submit"
+                label="SignUp"
+                className={`bg-[#FFA500] text-[16px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[10px] rounded-[50px] w-full mt-4`}
+                loading={registering}
               />
             </form>
           </div>
