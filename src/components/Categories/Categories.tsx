@@ -1,10 +1,15 @@
-import React, { useState } from 'react'
+import { useEffect, useState } from 'react'
 import Table from '../Table/Table';
-import { EditIcon, TrashIcon } from '../Images/Images';
+import { EditIcon, TrashIcon, ViewIcon } from '../Images/Images';
 import { useFormik } from 'formik';
 import { Dialog } from 'primereact/dialog';
 import InputField from '../InputField/InputField';
-import { Dropdown } from 'primereact/dropdown';
+import { Button } from 'primereact/button';
+import { CategorySchema } from '../../utils/Validations/Validation';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '../../store/store';
+import TableLoading from '../loader/TableLoading';
+import { apis } from '../../store/apis';
 
 const inputFieldStylingProps = {
     container: {
@@ -20,76 +25,162 @@ const inputFieldStylingProps = {
     },
 };
 
-const SHOP_CATEGORIES = [
-    {
-        name: 'Paid with cash',
-        value: 'Paid with cash'
-    },
-    {
-        name: 'Paid with momo',
-        value: 'Paid with momo'
-    },
-    {
-        name: 'Debt',
-        value: 'Debt'
-    },
-]
-
 const Categories = () => {
+  const dispatch = useDispatch();
   const [deletingId, setDeletingId] = useState<string | number | null>(null);
-  const [deleting, setDeleting] = useState(false);
   const [isDialogVisible, setIsDialogVisible] = useState(false);
-  const [placeholderData, setPlaceholderData] = useState([
-    { name: 'Bank of Kigali', type: 'Bank', balance: '50000.00', currency: 'RWF' },
-    { name: 'MTN Mobile Money', type: 'Mobile Money', balance: '50000.00', currency: 'RWF' },
-    { name: 'Cash', type: 'Cash', balance: '50000.00', currency: 'RWF' },
-    { name: 'Equity', type: 'Credit Card', balance: '50000.00', currency: 'RWF' },
-  ]);
+  const [isUpdating, setIsUpdating] = useState(false);
+  const [categoriesData, setCategoriesData] = useState<any>([]);
+  const [selectedCategory, setSelectedCategory] = useState<any>({});
+
+  const { 
+    fetching,
+    saving,
+    updating,
+    deleting,
+    categories,
+    user,
+  } = useSelector((state: RootState) =>  ({
+    fetching: state.getCategories.fetching,
+    saving: state.createCategory.saving,
+    updating: state.updateCategory.updating,
+    deleting: state.deleteCategory.deleting,
+    categories: state.getCategories.categories,
+    user: state.signin.data,
+  }));
 
   const formik = useFormik({
     initialValues: {
         name: "",
-        type: "",
-        balance: "",
-        currency: "",
     },
-    // validationSchema: NewItemSchema,
+    validationSchema: CategorySchema,
     onSubmit: async (values) => {
-        console.log(values)
+        const token = user?.access_token;
+
+        if(!isUpdating) {
+            const data ={
+                formData: values,
+                token
+            }
+    
+            const res = await dispatch(apis.createCategory(data) as any);
+    
+            dispatch(apis?.getCategories(token) as any);
+    
+            if (res?.payload?.message) {
+                formik?.resetForm();
+                setIsDialogVisible(false);
+            }
+        } else {
+            const data ={
+                updatedCategory: values,
+                token,
+                categoryId: selectedCategory?.id
+            }
+
+            const res = await dispatch(apis.updateCategory(data) as any);
+
+            dispatch(apis?.getCategories(token) as any);
+    
+            if (res?.payload?.message) {
+                formik?.resetForm();
+                setIsDialogVisible(false);
+            }
+        }
     }
   });
+
+  useEffect(() => {
+    if (user?.access_token) {
+        const token = user?.access_token;
+        dispatch(apis?.getCategories(token) as any);
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if(categories) {
+        const sortedCategories: any[] = [...categories].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+
+        setCategoriesData(sortedCategories)
+    }
+  }, [categories]);
+
+
+  const handleUpdate = async (id: string | number) => {
+    const selectedCateg = categories?.find((category: { id: string}) => category?.id === id);
+
+    formik?.setValues({
+        name: selectedCateg?.name,
+    })
+
+    setSelectedCategory(selectedCateg)
+    setIsDialogVisible(true);
+    setIsUpdating(true);
+  }
+
+  const handleDelete = async (id: string | number) => {
+    setDeletingId(id);
+
+    const token = user?.access_token;
+
+    const data = {
+        id: id as string,
+        token
+    }
+
+    const res = await dispatch(apis.deleteCategory(data) as any);
+
+    dispatch(apis?.getCategories(token) as any);
+    
+    if (res?.payload?.message) {
+        formik?.resetForm();
+        setIsDialogVisible(false);
+    }
+  }
 
 
   const columns = [
     {field: 'name', header: 'Account name'},
-    {field: 'type', header: 'Type'},
-    {field: 'balance', header: 'Balance'},
-    {field: 'currency', header: 'Currency'},
-    { field: 'actions', header: 'Actions' }
+    {field: '', header: ''},
+    {field: '', header: ''},
+    {field: '', header: ''},
+    {field: '', header: ''},
+    {field: 'createdAt', header: 'Date created'},
+    {field: '', header: ''},
+    {field: '', header: ''},
+    {field: '', header: ''},
+    {field: 'actions', header: 'Actions'}
   ];
 
   const actionTemplate = (rowData: { id: string | number }) => {
     return (
         <div className="flex items-center gap-6 space-x-4">
-            <a 
-                // href={`./franchise-models/edit-modal/${rowData?.id}?page=${currentPage}&m=${currentMenu}`}
-                className="text-[#172652] flex flex-row gap-2 items-center justify-center"
+            <span
+                className="text-[#172652] flex flex-row gap-2 items-center justify-center cursor-pointer"
+                // onClick={() => handleUpdate()}
+            >
+                View
+                <ViewIcon />
+            </span>
+            <span
+                className="text-[#172652] flex flex-row gap-2 items-center justify-center cursor-pointer"
+                onClick={() => handleUpdate(rowData?.id)}
             >
                 Edit
                 <EditIcon />
-            </a>
-            <button 
-              className="text-red-500 flex flex-row gap-2 items-center justify-center"
-            //   onClick={() => handleDelete(rowData?.id)}
+            </span>
+            <button
+                className="text-red-500 flex flex-row gap-2 items-center justify-center cursor-pointer"
+                onClick={() => handleDelete(rowData?.id)}
             >
-              {deleting && deletingId === rowData?.id ? (
-                <span>Loading...</span>
-              ) : (
-                <>
-                  Delete
-                  <TrashIcon />
-                </>
-              )}
+                {deleting && deletingId === rowData?.id ? (
+                  <span>Loading...</span>
+                ) : (
+                  <>
+                    delete
+                    <TrashIcon />
+                  </>
+                )}
             </button>
         </div>
     );
@@ -101,11 +192,16 @@ const Categories = () => {
             <div className='w-full flex justify-between items-center'>
                 <h1 className='font-extrabold text-[29px] text-[#71808e]'>Categories</h1>
 
-                {/* <Button
-                    onClick={() => setIsDialogVisible(true)}
-                    styling={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
-                    value='Create Account'
-                /> */}
+                <Button
+                    type="submit"
+                    label="Create category"
+                    className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
+                    // loading={saving}
+                    onClick={() => {
+                        setIsDialogVisible(true);
+                        setIsUpdating(false);
+                    }}
+                />
             </div>
 
             <p className='font-bold text-[#656c73] text-[16px] text-justify'>
@@ -121,15 +217,19 @@ const Categories = () => {
         </div>
 
         <div className='bg-[#f6dcab] py-8 px-4 rounded-lg'>
-            <Table
-                actionTemplate={actionTemplate}
-                columns={columns}
-                data={placeholderData}
-            />
+            {fetching ? (
+                <TableLoading />
+            ) : (
+                <Table
+                    actionTemplate={actionTemplate}
+                    columns={columns}
+                    data={categoriesData}
+                />
+            )}
         </div>
 
         <Dialog 
-            header="Create Account"
+            header={`${isUpdating ? "Update" : "Create"} Category`}
             visible={isDialogVisible}
             className='md:w-[35%]'
             headerClassName='text-[#198b7b] text-[32px] custom-scrollbar'
@@ -139,11 +239,14 @@ const Categories = () => {
                 setIsDialogVisible(false);
             }}
         >
-            <div className='flex flex-col gap-[20px]'>
+            <form 
+                className='flex flex-col gap-[20px]'
+                onSubmit={formik.handleSubmit}
+            >
                 <div className="w-full flex flex-col">
                     <InputField
                         value={formik.values.name}
-                        placeholder="Enter account name"
+                        placeholder="Enter category name"
                         required={false}
                         type="text"
                         name="name"
@@ -159,71 +262,16 @@ const Categories = () => {
                         </p>
                     ) : null}
                 </div>
-                <div className="w-full flex flex-col">
-                    <h1 className='text-[14px] leading-[18.12px] font-[700] font-manrope text-[#74858e] ml-[1px] mb-1'>Category</h1>
-                    <Dropdown
-                        value={formik.values.type}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        name="type"
-                        options={SHOP_CATEGORIES}
-                        optionLabel="name"
-                        placeholder="Select Type"
-                        className="w-full border-[1.5px] border-[#D6D6D6] bg-[#ffffff3a] placeholder:text-gray-600"
-                    />
-                    {formik.touched.type && formik.errors.type ? (
-                        <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
-                            {formik.errors.type}
-                        </p>
-                    ) : null}
-                </div>
-                <div className="w-full flex flex-col">
-                    <InputField
-                        value={formik.values.balance}
-                        placeholder="Enter account balance"
-                        required={false}
-                        type="text"
-                        name="balance"
-                        className="text-xs"
-                        label="Account balance"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        {...inputFieldStylingProps}
-                    />
-                    {formik.touched.balance && formik.errors.balance ? (
-                        <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
-                            {formik.errors.balance}
-                        </p>
-                    ) : null}
-                </div>
-                <div className="w-full flex flex-col">
-                    <InputField
-                        value={formik.values.currency}
-                        placeholder="Enter account currency"
-                        required={false}
-                        type="text"
-                        name="currency"
-                        className="text-xs"
-                        label="Account Currency"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        {...inputFieldStylingProps}
-                    />
-                    {formik.touched.currency && formik.errors.currency ? (
-                        <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
-                            {formik.errors.currency}
-                        </p>
-                    ) : null}
-                </div>
             
                 <div className='w-full flex justify-center items-center'>
-                    {/* <Button
-                        onClick={() => setIsDialogVisible(true)}
-                        styling={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
-                        value='Create Account'
-                    /> */}
+                    <Button
+                        type="submit"
+                        label={`${isUpdating ? "Update" : "Create"} Category`}
+                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px] w-full`}
+                        loading={saving || updating}
+                    />
                 </div>
-            </div>
+            </form>
         </Dialog>
     </div>
   )

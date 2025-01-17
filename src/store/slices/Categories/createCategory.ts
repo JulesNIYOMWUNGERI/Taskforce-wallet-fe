@@ -1,8 +1,8 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { apis } from "../../apis";
 
-const addTransactionSlice = createSlice({
-  name: "createTransaction",
+const addCategorySlice = createSlice({
+  name: "createCategory",
   initialState: {
     saving: false,
     error: false,
@@ -12,11 +12,11 @@ const addTransactionSlice = createSlice({
   },
   reducers: {},
   extraReducers(builder) {
-    builder.addCase(apis.createTransaction.pending, (state) => {
+    builder.addCase(apis.createCategory.pending, (state) => {
       state.saving = true;
     });
     builder.addCase(
-      apis.createTransaction.fulfilled,
+      apis.createCategory.fulfilled,
       (state, action: PayloadAction<any>) => {
         state.saving = false;
         state.success = true;
@@ -26,7 +26,7 @@ const addTransactionSlice = createSlice({
       }
     );
     builder.addCase(
-      apis.createTransaction.rejected,
+      apis.createCategory.rejected,
       (state, action: PayloadAction<any>) => {
         state.saving = false;
         state.error = true;
@@ -44,4 +44,4 @@ const addTransactionSlice = createSlice({
   },
 });
 
-export default addTransactionSlice.reducer;
+export default addCategorySlice.reducer;

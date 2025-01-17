@@ -37,3 +37,35 @@ export const AccountSchema = Yup.object().shape({
     currency: Yup.string()
       .required("Currency is required!"),
 });
+
+export const TransactionSchema = Yup.object().shape({
+    amount: Yup.number()
+      .required("Amount is required!"),
+    type: Yup.string()
+      .required("Type is required!"),
+    categoryId: Yup.string()
+      .required("Category is required!"),
+    subCategory: Yup.string(),
+    accountId: Yup.string()
+      .required("Account is required!"),
+    transactionDate: Yup.string()
+      .required("Date is required!"),
+    description: Yup.string()
+      .required("Description is required!"),
+});
+
+export const UpdateTransactionSchema = Yup.object().shape({
+    amount: Yup.number()
+      .required("Amount is required!"),
+    type: Yup.string()
+      .required("Type is required!"),
+    transactionDate: Yup.string()
+      .required("Date is required!"),
+    description: Yup.string()
+      .required("Description is required!"),
+});
+
+export const CategorySchema = Yup.object().shape({
+    name: Yup.string()
+      .required("Field is required!"),
+});

@@ -16,6 +16,13 @@ import createAccount from './slices/Accounts/createAccount'
 import updateAccount from './slices/Accounts/updateAccount'
 import deleteAccount from './slices/Accounts/deleteAccount'
 import getTransactions from './slices/Transactions/getTransactions'
+import createTransaction from './slices/Transactions/createTransactions'
+import updateTransaction from './slices/Transactions/updateTransaction'
+import deleteTransaction from './slices/Transactions/deleteTransaction'
+import getCategories from './slices/Categories/getCategories'
+import createCategory from './slices/Categories/createCategory'
+import updateCategory from './slices/Categories/updateCategory'
+import deleteCategory from './slices/Categories/deleteCategory'
 
 const persistConfig = {
     key: 'root',
@@ -30,7 +37,14 @@ const reducer = combineReducers({
   createAccount,
   updateAccount,
   deleteAccount,
-  getTransactions
+  getTransactions,
+  createTransaction,
+  updateTransaction,
+  deleteTransaction,
+  getCategories,
+  createCategory,
+  updateCategory,
+  deleteCategory
 });
 
 const persistedReducer = persistReducer(persistConfig, reducer);
