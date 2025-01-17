@@ -57,6 +57,7 @@ const Sidebar = () => {
                             {i?.name}
                         </h1>
                         {currentPage === i?.name && (<div className='h-2 w-2 rounded-full bg-[#fea500]' />)}
+                        {(currentPage === "Category_details" && i?.name === "Categories")&& (<div className='h-2 w-2 rounded-full bg-[#fea500]' />)}
                     </div>
                 ))}
             </div>

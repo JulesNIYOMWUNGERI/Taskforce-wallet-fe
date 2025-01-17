@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import TableLoading from '../loader/TableLoading';
 import { apis } from '../../store/apis';
+import { useNavigate } from 'react-router-dom';
 
 const inputFieldStylingProps = {
     container: {
@@ -27,6 +28,7 @@ const inputFieldStylingProps = {
 
 const Categories = () => {
   const dispatch = useDispatch();
+  const navigate = useNavigate();
   const [deletingId, setDeletingId] = useState<string | number | null>(null);
   const [isDialogVisible, setIsDialogVisible] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);
@@ -48,6 +50,21 @@ const Categories = () => {
     categories: state.getCategories.categories,
     user: state.signin.data,
   }));
+
+  const updateQuery = (currentPage: string, id: string | number) => {
+    const currentQuery = location.search
+      ? location.search.slice(1)
+      : '';
+  
+    const queryParams = new URLSearchParams(currentQuery);
+  
+    queryParams.set('currentPage', currentPage);
+    queryParams.set('id', `${id}`);
+  
+    const newPath = `${location.pathname}?${queryParams.toString()}`;
+
+    navigate(newPath, { replace: true });
+  };
 
   const formik = useFormik({
     initialValues: {
@@ -99,7 +116,9 @@ const Categories = () => {
 
   useEffect(() => {
     if(categories) {
-        const sortedCategories: any[] = [...categories].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
+        const categoriesWithoutSubCat = categories?.filter((cat: { parentId: string }) => cat?.parentId === null)
+
+        const sortedCategories: any[] = [...categoriesWithoutSubCat].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
         setCategoriesData(sortedCategories)
     }
@@ -140,15 +159,8 @@ const Categories = () => {
 
 
   const columns = [
-    {field: 'name', header: 'Account name'},
-    {field: '', header: ''},
-    {field: '', header: ''},
-    {field: '', header: ''},
-    {field: '', header: ''},
+    {field: 'name', header: 'Categories'},
     {field: 'createdAt', header: 'Date created'},
-    {field: '', header: ''},
-    {field: '', header: ''},
-    {field: '', header: ''},
     {field: 'actions', header: 'Actions'}
   ];
 
@@ -157,7 +169,7 @@ const Categories = () => {
         <div className="flex items-center gap-6 space-x-4">
             <span
                 className="text-[#172652] flex flex-row gap-2 items-center justify-center cursor-pointer"
-                // onClick={() => handleUpdate()}
+                onClick={() => updateQuery("Category_details", rowData?.id)}
             >
                 View
                 <ViewIcon />
@@ -196,7 +208,6 @@ const Categories = () => {
                     type="submit"
                     label="Create category"
                     className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
-                    // loading={saving}
                     onClick={() => {
                         setIsDialogVisible(true);
                         setIsUpdating(false);
@@ -251,7 +262,7 @@ const Categories = () => {
                         type="text"
                         name="name"
                         className="text-xs"
-                        label="Account name"
+                        label="Category name"
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
                         {...inputFieldStylingProps}

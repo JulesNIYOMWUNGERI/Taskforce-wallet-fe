@@ -60,7 +60,9 @@ const Transactions = () => {
   const [accountsOptions, setAccountsOptions] = useState([]);
   const [categoriesOptions, setCategoriesOptions] = useState([]);
   const [isDetailsDialogVisible, setIsDetailsDialogVisible] = useState(false);
-  const [selectedTransaction, setSelectedTransaction] = useState<any>({})
+  const [selectedTransaction, setSelectedTransaction] = useState<any>({});
+  const [selectedCategory, setSelectedCategory] = useState<any>({});
+  const [subCategoriesOptions, setSubCategoriesOptions] = useState([]);
 
   const { 
     fetching,
@@ -154,6 +156,17 @@ const Transactions = () => {
   }, [user]);
 
   useEffect(() => {
+    if (selectedCategory?.subcategories) {
+        const subCatOptions = selectedCategory?.subcategories?.map((category: {id: string, name: string}) => ({
+            name: category?.name,
+            value: category?.id
+        }));
+
+        setSubCategoriesOptions(subCatOptions);
+    }
+  }, [selectedCategory]);
+
+  useEffect(() => {
     if(transactions) {
         const sortedTransactions: any[] = [...transactions].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
 
@@ -179,7 +192,9 @@ const Transactions = () => {
     }
 
     if (categories) {
-        const catOptions = categories.map((category: {id: string, name: string}) => ({
+        const categoriesWithoutSubCat = categories?.filter((cat: { parentId: string }) => cat?.parentId === null);
+
+        const catOptions = categoriesWithoutSubCat.map((category: {id: string, name: string}) => ({
             name: category?.name,
             value: category?.id
         }));
@@ -225,6 +240,13 @@ const Transactions = () => {
         updatingFormik?.resetForm();
         setIsDetailsDialogVisible(false);
     }
+  }
+
+  const handleSelectCategory = (e: any) => {
+    const selectedCat = categories?.find((category: { id: string }) => category?.id === e.target.value)
+    setSelectedCategory(selectedCat);
+
+    formik.setFieldValue("categoryId", e.target.value)
   }
 
 
@@ -351,7 +373,7 @@ const Transactions = () => {
                         <h1 className='text-[12px] leading-[18.12px] font-[500] font-manrope text-black ml-[1px] mb-[2px]'>Category</h1>
                         <Dropdown
                             value={formik.values.categoryId}
-                            onChange={formik.handleChange}
+                            onChange={(e: any) => handleSelectCategory(e)}
                             onBlur={formik.handleBlur}
                             name="categoryId"
                             options={categoriesOptions}
@@ -372,7 +394,7 @@ const Transactions = () => {
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
                             name="subCategory"
-                            options={SHOP_CATEGORIES}
+                            options={subCategoriesOptions}
                             optionLabel="name"
                             placeholder="Select sub category"
                             className="w-full border-[1.5px] border-[#D6D6D6] bg-[#ffffff3a] placeholder:text-gray-600"
