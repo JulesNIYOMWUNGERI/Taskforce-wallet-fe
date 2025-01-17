@@ -1,10 +1,10 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 import { apis } from "../../apis";
 
-const addTransactionSlice = createSlice({
-  name: "createTransaction",
+const deleteTransactionSlice = createSlice({
+  name: "deleteTransaction",
   initialState: {
-    saving: false,
+    deleting: false,
     error: false,
     success: false,
     message: "",
@@ -12,30 +12,30 @@ const addTransactionSlice = createSlice({
   },
   reducers: {},
   extraReducers(builder) {
-    builder.addCase(apis.createTransaction.pending, (state) => {
-      state.saving = true;
+    builder.addCase(apis.deleteTransaction.pending, (state) => {
+      state.deleting = true;
     });
     builder.addCase(
-      apis.createTransaction.fulfilled,
+      apis.deleteTransaction.fulfilled,
       (state, action: PayloadAction<any>) => {
-        state.saving = false;
+        state.deleting = false;
         state.success = true;
-        state.message = "Created successfully";
+        state.message = "Deleted successfully";
         state.data = action?.payload;
         state.error = false;
       }
     );
     builder.addCase(
-      apis.createTransaction.rejected,
+      apis.deleteTransaction.rejected,
       (state, action: PayloadAction<any>) => {
-        state.saving = false;
+        state.deleting = false;
         state.error = true;
         state.message = action?.payload?.error?.message;
         state.success = false;
       }
     );
     builder.addCase(apis.reset, (state) => {
-      state.saving = false;
+      state.deleting = false;
       state.error = false;
       state.success = false;
       state.message = "";
@@ -44,4 +44,4 @@ const addTransactionSlice = createSlice({
   },
 });
 
-export default addTransactionSlice.reducer;
+export default deleteTransactionSlice.reducer;

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import Table from '../Table/Table';
-import { EditIcon, TrashIcon, ViewIcon } from '../Images/Images';
+import { ViewIcon } from '../Images/Images';
 import { useFormik } from 'formik';
 import { Dialog } from 'primereact/dialog';
 import InputField from '../InputField/InputField';
@@ -202,7 +202,7 @@ const Accounts = () => {
             </span>
         </div>
     );
-};
+  };
 
   return (
     <div className='w-[79%] flex flex-col gap-4 p-8 overflow-y-auto'>

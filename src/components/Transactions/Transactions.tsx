@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 import Table from '../Table/Table';
-import { EditIcon, TrashIcon } from '../Images/Images';
+import { ViewIcon } from '../Images/Images';
 import { useFormik } from 'formik';
 import { Dialog } from 'primereact/dialog';
 import InputField from '../InputField/InputField';
@@ -10,6 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import TableLoading from '../loader/TableLoading';
 import { apis } from '../../store/apis';
+import { TransactionSchema, UpdateTransactionSchema } from '../../utils/Validations/Validation';
 
 const inputFieldStylingProps = {
     container: {
@@ -21,7 +22,7 @@ const inputFieldStylingProps = {
     },
     input: {
       className:
-        'py-3 px-4 border-[1.5px] border-[#D6D6D6] outline-none bg-transparent rounded-md border border-gray-300 placeholder:text-gray-600',
+        'py-4 px-4 border-[1.5px] border-[#D6D6D6] outline-none bg-transparent rounded-md border border-gray-300 placeholder:text-gray-600',
     },
 };
 
@@ -40,39 +41,107 @@ const SHOP_CATEGORIES = [
     },
 ]
 
+const TRANSACTION_TYPE = [
+    {
+        name: 'Income',
+        value: 'income'
+    },
+    {
+        name: 'Expense',
+        value: 'expense'
+    }
+]
+
 const Transactions = () => {
   const dispatch = useDispatch();
-  const [deletingId, setDeletingId] = useState<string | number | null>(null);
-  const [isUpdating, setIsUpdating] = useState(false)
-  const [deleting, setDeleting] = useState(false);
   const [isDialogVisible, setIsDialogVisible] = useState(false);
-  const [transactionsData, setTransactionsData] = useState([
-    { name: 'Bank of Kigali', type: 'Income', amount: '50000.00', transactionDate: '2025-01-14 12:00:00', description: 'sunt in culpa qui officia deserunt mollit anim id est laborum.' },
-    { name: 'MTN Mobile Money', type: 'Expense', amount: '50000.00', transactionDate: '2025-01-14 12:00:00', description: 'sunt in culpa qui officia deserunt mollit anim id est laborum.' },
-    { name: 'Cash', type: 'Income', amount: '50000.00', transactionDate: '2025-01-14 12:00:00', description: 'sunt in culpa qui officia deserunt mollit anim id est laborum.' },
-    { name: 'Equity', type: 'Expense', amount: '50000.00', transactionDate: '2025-01-14 12:00:00', description: 'sunt in culpa qui officia deserunt mollit anim id est laborum.' },
-  ]);
+  const [isUpdateDialogVisible, setIsUpdateDialogVisible] = useState(false);
+  const [transactionsData, setTransactionsData] = useState<any>([]);
+  const [accountsOptions, setAccountsOptions] = useState([]);
+  const [categoriesOptions, setCategoriesOptions] = useState([]);
+  const [isDetailsDialogVisible, setIsDetailsDialogVisible] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<any>({})
 
   const { 
     fetching,
+    saving,
+    updating,
+    deleting,
     transactions,
+    accounts,
+    categories,
     user,
   } = useSelector((state: RootState) =>  ({
     fetching: state.getTransactions.fetching,
+    saving: state.createTransaction.saving,
+    updating: state.updateTransaction.updating,
+    deleting: state.deleteTransaction.deleting,
     transactions: state.getTransactions.transactions,
+    accounts: state.getAccounts.accounts,
+    categories: state.getCategories.categories,
     user: state.signin.data,
   }));
+
+  const updatingFormik = useFormik({
+    initialValues: {
+        amount: "",
+        type: "",
+        transactionDate: "",
+        description: "",
+    },
+    validationSchema: UpdateTransactionSchema,
+    onSubmit: async (values) => {
+        const token = user?.access_token;
+
+        const data = {
+            updatedTransaction: {
+                amount: Number(values?.amount),
+                type: values?.type,
+                description: values?.description,
+                transactionDate: values?.transactionDate
+            },
+            token,
+            transactionId: selectedTransaction?.id
+        }
+
+        const res = await dispatch(apis.updateTransaction(data) as any);
+
+        dispatch(apis?.getTransactions(token) as any);
+
+        if (res?.payload?.message) {
+            updatingFormik?.resetForm();
+            setIsUpdateDialogVisible(false);
+        }
+    }
+  });
 
   const formik = useFormik({
     initialValues: {
         amount: "",
         type: "",
-        description: "",
+        categoryId: "",
+        subCategory: "",
+        accountId: "",
         transactionDate: "",
+        description: "",
     },
-    // validationSchema: NewItemSchema,
+    validationSchema: TransactionSchema,
     onSubmit: async (values) => {
-        console.log(values)
+        const token = user?.access_token
+
+        const data ={
+            formData: values,
+            token
+        }
+
+        const res = await dispatch(apis.createTransaction(data) as any);
+
+        dispatch(apis?.getTransactions(token) as any);
+
+        if (res?.payload?.message) {
+            formik?.resetForm();
+            setIsDialogVisible(false);
+        }
     }
   });
 
@@ -80,22 +149,90 @@ const Transactions = () => {
     if (user?.access_token) {
         const token = user?.access_token
         dispatch(apis?.getTransactions(token) as any);
+        dispatch(apis?.getCategories(token) as any);
     }
   }, [user]);
 
   useEffect(() => {
     if(transactions) {
         const sortedTransactions: any[] = [...transactions].sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-        setTransactionsData(sortedTransactions)
+
+        const transactionsWithAccountNames = sortedTransactions.map((transaction: any) => ({
+            ...transaction,
+            name: transaction?.account?.name || null,
+            category: transaction?.category?.name || null,
+            transactionDate: transaction?.transactionDate?.split("T")[0] || null
+        }));
+
+        setTransactionsData(transactionsWithAccountNames)
     }
   }, [transactions]);
+
+  useEffect(() => {
+    if (accounts) {
+        const accOptions = accounts.map((acc: {id: string, name: string}) => ({
+            name: acc?.name,
+            value: acc?.id
+        }));
+
+        setAccountsOptions(accOptions);
+    }
+
+    if (categories) {
+        const catOptions = categories.map((category: {id: string, name: string}) => ({
+            name: category?.name,
+            value: category?.id
+        }));
+
+        setCategoriesOptions(catOptions);
+    }
+  }, [accounts, categories]);
+
+  const handleViewTransactionDetails = (id: string | number) => {
+    const transaction = transactionsData?.find((obj: { id: string }) => obj.id === id);
+
+    setSelectedTransaction(transaction);
+    setIsDetailsDialogVisible(true)
+  }
+
+  const handleUpdate = async () => {
+    updatingFormik?.setValues({
+        amount: selectedTransaction?.amount,
+        type: selectedTransaction?.type,
+        description: selectedTransaction?.description,
+        transactionDate: selectedTransaction?.transactionDate?.split('T')[0]
+    })
+
+
+    setIsDetailsDialogVisible(false);
+    setIsUpdateDialogVisible(true);
+  }
+
+  const handleDeleteTransaction = async () => {
+    const token = user?.access_token;
+
+    const data = {
+        id: selectedTransaction?.id,
+        token
+    }
+
+    const res = await dispatch(apis.deleteTransaction(data) as any);
+
+    dispatch(apis?.getTransactions(token) as any);
+
+    if (res?.payload?.message) {
+        formik?.resetForm();
+        updatingFormik?.resetForm();
+        setIsDetailsDialogVisible(false);
+    }
+  }
 
 
   const columns = [
     {field: 'name', header: 'Transaction account'},
     {field: 'type', header: 'Transaction type'},
     {field: 'amount', header: 'Amount'},
-    {field: 'description', header: 'Description'},
+    {field: 'category', header: 'Category'},
     {field: 'transactionDate', header: 'Transaction Date'},
     { field: 'actions', header: 'Actions' }
   ];
@@ -103,26 +240,13 @@ const Transactions = () => {
   const actionTemplate = (rowData: { id: string | number }) => {
     return (
         <div className="flex items-center gap-6 space-x-4">
-            <a 
-                // href={`./franchise-models/edit-modal/${rowData?.id}?page=${currentPage}&m=${currentMenu}`}
-                className="text-[#172652] flex flex-row gap-2 items-center justify-center"
+            <span
+                className="text-[#172652] flex flex-row gap-2 items-center justify-center cursor-pointer"
+                onClick={() => handleViewTransactionDetails(rowData?.id)}
             >
-                Edit
-                <EditIcon />
-            </a>
-            <button 
-              className="text-red-500 flex flex-row gap-2 items-center justify-center"
-            //   onClick={() => handleDelete(rowData?.id)}
-            >
-              {deleting && deletingId === rowData?.id ? (
-                <span>Loading...</span>
-              ) : (
-                <>
-                  Delete
-                  <TrashIcon />
-                </>
-              )}
-            </button>
+                View
+                <ViewIcon />
+            </span>
         </div>
     );
   };
@@ -137,10 +261,8 @@ const Transactions = () => {
                     type="submit"
                     label="Create Transactions"
                     className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
-                    // loading={saving}
                     onClick={() => {
                         setIsDialogVisible(true);
-                        setIsUpdating(false)
                     }}
                 />
             </div>
@@ -169,10 +291,10 @@ const Transactions = () => {
             )}
         </div>
 
-        <Dialog 
-            header="Create Transaction"
+        <Dialog
+            header={`Create Transaction`}
             visible={isDialogVisible}
-            className='md:w-[35%]'
+            className='md:w-[80%]'
             headerClassName='text-[#198b7b] text-[32px] custom-scrollbar'
             modal
             onHide={() => {
@@ -180,44 +302,129 @@ const Transactions = () => {
                 setIsDialogVisible(false);
             }}
         >
-            <div className='flex flex-col gap-[20px]'>
-                <div className="w-full flex flex-col">
-                    <InputField
-                        value={formik.values.amount}
-                        placeholder="Enter mount"
-                        required={false}
-                        type="text"
-                        name="amount"
-                        className="text-xs"
-                        label="Amount"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        {...inputFieldStylingProps}
-                    />
-                    {formik.touched.amount && formik.errors.amount ? (
-                        <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
-                            {formik.errors.amount}
-                        </p>
-                    ) : null}
+            <form 
+                className='flex flex-col gap-[20px]'
+                onSubmit={formik.handleSubmit}
+            >
+                <div className='w-full flex justify-between items-center gap-5'>
+                    <div className="w-full flex flex-col">
+                        <InputField
+                            value={formik.values.amount}
+                            placeholder="Enter mount"
+                            required={false}
+                            type="number"
+                            name="amount"
+                            className="text-xs"
+                            label="Amount"
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            {...inputFieldStylingProps}
+                        />
+                        {formik.touched.amount && formik.errors.amount ? (
+                            <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
+                                {formik.errors.amount}
+                            </p>
+                        ) : null}
+                    </div>
+                    <div className="w-full flex flex-col mt-1">
+                        <h1 className='text-[12px] leading-[18.12px] font-[500] font-manrope text-black ml-[1px] mb-[2px]'>Type</h1>
+                        <Dropdown
+                            value={formik.values.type}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            name="type"
+                            options={TRANSACTION_TYPE}
+                            optionLabel="name"
+                            placeholder="Select Type"
+                            className="w-full border-[1.5px] border-[#D6D6D6] bg-[#ffffff3a] placeholder:text-gray-600"
+                        />
+                        {formik.touched.type && formik.errors.type ? (
+                            <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
+                                {formik.errors.type}
+                            </p>
+                        ) : null}
+                    </div>
                 </div>
-                <div className="w-full flex flex-col">
-                    <h1 className='text-[14px] leading-[18.12px] font-[700] font-manrope text-[#74858e] ml-[1px] mb-1'>Category</h1>
-                    <Dropdown
-                        value={formik.values.type}
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        name="type"
-                        options={SHOP_CATEGORIES}
-                        optionLabel="name"
-                        placeholder="Select Type"
-                        className="w-full border-[1.5px] border-[#D6D6D6] bg-[#ffffff3a] placeholder:text-gray-600"
-                    />
-                    {formik.touched.type && formik.errors.type ? (
-                        <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
-                            {formik.errors.type}
-                        </p>
-                    ) : null}
+
+                <div className='w-full flex justify-between items-center gap-5'>
+                    <div className="w-full flex flex-col mt-1">
+                        <h1 className='text-[12px] leading-[18.12px] font-[500] font-manrope text-black ml-[1px] mb-[2px]'>Category</h1>
+                        <Dropdown
+                            value={formik.values.categoryId}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            name="categoryId"
+                            options={categoriesOptions}
+                            optionLabel="name"
+                            placeholder="Select category"
+                            className="w-full border-[1.5px] border-[#D6D6D6] bg-[#ffffff3a] placeholder:text-gray-600"
+                        />
+                        {formik.touched.categoryId && formik.errors.categoryId ? (
+                            <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
+                                {formik.errors.categoryId}
+                            </p>
+                        ) : null}
+                    </div>
+                    <div className="w-full flex flex-col mt-1">
+                        <h1 className='text-[12px] leading-[18.12px] font-[500] font-manrope text-black ml-[1px] mb-[2px]'>Sub category</h1>
+                        <Dropdown
+                            value={formik.values.subCategory}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            name="subCategory"
+                            options={SHOP_CATEGORIES}
+                            optionLabel="name"
+                            placeholder="Select sub category"
+                            className="w-full border-[1.5px] border-[#D6D6D6] bg-[#ffffff3a] placeholder:text-gray-600"
+                        />
+                        {formik.touched.subCategory && formik.errors.subCategory ? (
+                            <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
+                                {formik.errors.subCategory}
+                            </p>
+                        ) : null}
+                    </div>
                 </div>
+
+                <div className='w-full flex justify-between items-center gap-5'>
+                    <div className="w-full flex flex-col mt-1">
+                        <h1 className='text-[12px] leading-[18.12px] font-[500] font-manrope text-black ml-[1px] mb-[2px]'>Transaction account</h1>
+                        <Dropdown
+                            value={formik.values.accountId}
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            name="accountId"
+                            options={accountsOptions}
+                            optionLabel="name"
+                            placeholder="Select account"
+                            className="w-full border-[1.5px] border-[#D6D6D6] bg-[#ffffff3a] placeholder:text-gray-600"
+                        />
+                        {formik.touched.accountId && formik.errors.accountId ? (
+                            <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
+                                {formik.errors.accountId}
+                            </p>
+                        ) : null}
+                    </div>
+                    <div className="w-full flex flex-col">
+                        <InputField
+                            value={formik.values.transactionDate}
+                            placeholder="Enter transaction date"
+                            required={false}
+                            type="date"
+                            name="transactionDate"
+                            className="text-xs"
+                            label="Transaction Date"
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            {...inputFieldStylingProps}
+                        />
+                        {formik.touched.transactionDate && formik.errors.transactionDate ? (
+                            <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
+                                {formik.errors.transactionDate}
+                            </p>
+                        ) : null}
+                    </div>
+                </div>
+
                 <div className="w-full flex flex-col">
                     <h1 className='font-[600] text-[12px] leading-[21.94px] text-[#32343A]'>
                         Transaction Description
@@ -226,7 +433,10 @@ const Transactions = () => {
                         value={formik.values.description}
                         placeholder='Add a transaction description'
                         id="description"
+                        name='description'
                         rows={3}
+                        onChange={formik.handleChange}
+                        onBlur={formik.handleBlur}
                         className="w-full p-2 border-[1.5px] text-[14px] outline-none rounded-md border-[#D6D6D6] focus:outline-none"
                     />
                     {formik.touched.description && formik.errors.description ? (
@@ -235,22 +445,112 @@ const Transactions = () => {
                         </p>
                     ) : null}
                 </div>
-                <div className="w-full flex flex-col">
-                    <InputField
-                        value={formik.values.transactionDate}
-                        placeholder="Enter account currency"
-                        required={false}
-                        type="date"
-                        name="transactionDate"
-                        className="text-xs"
-                        label="Transaction Date"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        {...inputFieldStylingProps}
+            
+                <div className='w-full flex justify-center items-center'>
+                    <Button
+                        type="submit"
+                        label={`Create Transaction`}
+                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px] w-full`}
+                        loading={saving}
                     />
-                    {formik.touched.transactionDate && formik.errors.transactionDate ? (
+                </div>
+            </form>
+        </Dialog>
+
+        <Dialog
+            header={`Update Transaction`}
+            visible={isUpdateDialogVisible}
+            className='md:w-[80%]'
+            headerClassName='text-[#198b7b] text-[32px] custom-scrollbar'
+            modal
+            onHide={() => {
+                updatingFormik?.resetForm();
+                setIsUpdateDialogVisible(false);
+            }}
+        >
+            <form 
+                className='flex flex-col gap-[20px]'
+                onSubmit={updatingFormik.handleSubmit}
+            >
+                <div className='w-full flex justify-between items-center gap-5'>
+                    <div className="w-full flex flex-col">
+                        <InputField
+                            value={updatingFormik.values.amount}
+                            placeholder="Enter mount"
+                            required={false}
+                            type="number"
+                            name="amount"
+                            className="text-xs"
+                            label="Amount"
+                            onChange={updatingFormik.handleChange}
+                            onBlur={updatingFormik.handleBlur}
+                            {...inputFieldStylingProps}
+                        />
+                        {updatingFormik.touched.amount && updatingFormik.errors.amount ? (
+                            <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
+                                {updatingFormik.errors.amount}
+                            </p>
+                        ) : null}
+                    </div>
+                    <div className="w-full flex flex-col mt-1">
+                        <h1 className='text-[12px] leading-[18.12px] font-[500] font-manrope text-black ml-[1px] mb-[2px]'>Type</h1>
+                        <Dropdown
+                            value={updatingFormik.values.type}
+                            onChange={updatingFormik.handleChange}
+                            onBlur={updatingFormik.handleBlur}
+                            name="type"
+                            options={TRANSACTION_TYPE}
+                            optionLabel="name"
+                            placeholder="Select Type"
+                            className="w-full border-[1.5px] border-[#D6D6D6] bg-[#ffffff3a] placeholder:text-gray-600"
+                        />
+                        {updatingFormik.touched.type && updatingFormik.errors.type ? (
+                            <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
+                                {updatingFormik.errors.type}
+                            </p>
+                        ) : null}
+                    </div>
+                </div>
+
+                <div className='w-full flex justify-between items-center gap-5'>
+                    <div className="w-full flex flex-col">
+                        <InputField
+                            value={updatingFormik.values.transactionDate}
+                            placeholder="Enter transaction date"
+                            required={false}
+                            type="date"
+                            name="transactionDate"
+                            className="text-xs"
+                            label="Transaction Date"
+                            onChange={updatingFormik.handleChange}
+                            onBlur={updatingFormik.handleBlur}
+                            {...inputFieldStylingProps}
+                        />
+                        {updatingFormik.touched.transactionDate && updatingFormik.errors.transactionDate ? (
+                            <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
+                                {updatingFormik.errors.transactionDate}
+                            </p>
+                        ) : null}
+                    </div>
+                </div>
+
+                <div className="w-full flex flex-col">
+                    <h1 className='font-[600] text-[12px] leading-[21.94px] text-[#32343A]'>
+                        Transaction Description
+                    </h1>
+                    <textarea
+                        value={updatingFormik.values.description}
+                        placeholder='Add a transaction description'
+                        id="description"
+                        name='description'
+                        rows={3}
+                        onChange={updatingFormik.handleChange}
+                        onBlur={updatingFormik.handleBlur}
+                        className="w-full p-2 border-[1.5px] text-[14px] outline-none rounded-md border-[#D6D6D6] focus:outline-none"
+                    />
+                    {updatingFormik.touched.description && updatingFormik.errors.description ? (
                         <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
-                            {formik.errors.transactionDate}
+                            {updatingFormik.errors.description}
                         </p>
                     ) : null}
                 </div>
@@ -258,10 +558,86 @@ const Transactions = () => {
                 <div className='w-full flex justify-center items-center'>
                     <Button
                         type="submit"
-                        label={`${isUpdating ? "Update" : "Create"} Transaction`}
+                        label={`Update Transaction`}
                         className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px] w-full`}
-                        // loading={saving || updating}
+                        loading={updating}
                     />
+                </div>
+            </form>
+        </Dialog>
+
+        <Dialog 
+            header="Transaction details"
+            visible={isDetailsDialogVisible}
+            className='md:w-[75%]'
+            headerClassName='text-[#198b7b] text-[32px] custom-scrollbar'
+            modal
+            onHide={() => {
+                setIsDetailsDialogVisible(false);
+            }}
+        >
+            <div className='w-full flex flex-col gap-10 p-2'>
+                <div className='w-full flex justify-between items-center'>
+                    <div className='flex justify-center items-center gap-2'>
+                        <span className='font-[600] text-[18px]'>Transaction account name: </span>
+                        <h1 className='text-[16px] mt-[1px]'>{selectedTransaction?.name}</h1>
+                    </div>
+
+                    <div className='flex justify-center items-center gap-2'>
+                        <span className='font-[600] text-[18px]'>Transaction type: </span>
+                        <h1 className='text-[16px] mt-[1px]'>{selectedTransaction?.type}</h1>
+                    </div>
+                </div>
+
+                <div className='w-full flex justify-between items-center'>
+                    <div className='flex justify-center items-center gap-2'>
+                        <span className='font-[600] text-[18px]'>Transaction amount: </span>
+                        <h1 className='text-[16px] mt-[1px]'>{selectedTransaction?.amount}</h1>
+                    </div>
+
+                    <div className='flex justify-center items-center gap-2'>
+                        <span className='font-[600] text-[18px]'>Currency: </span>
+                        <h1 className='text-[16px] mt-[1px]'>{selectedTransaction?.account?.currency}</h1>
+                    </div>
+                </div>
+
+                <div className='w-full flex justify-between items-center'>
+                    <div className='flex justify-center items-center gap-2'>
+                        <span className='font-[600] text-[18px]'>Category: </span>
+                        <h1 className='text-[16px] mt-[1px]'>{selectedTransaction?.category?.name}</h1>
+                    </div>
+
+                    <div className='flex justify-center items-center gap-2'>
+                        <span className='font-[600] text-[18px]'>Transaction date: </span>
+                        <h1 className='text-[16px] mt-[1px]'>{selectedTransaction?.transactionDate?.split('T')[0]}</h1>
+                    </div>
+                </div>
+                <div className='w-full flex justify-between items-center'>
+                    <div className='flex justify-center items-start gap-2'>
+                        <span className='font-[600] text-[18px]'>Description: </span>
+                        <h1 className='text-[16px] mt-[1px]'>{selectedTransaction?.description}</h1>
+                    </div>
+                </div>
+
+                <div className='w-full flex justify-between items-center gap-20 mt-5'>
+                    <div className='w-full flex justify-center items-center'>
+                        <Button
+                            type="submit"
+                            label="Delete Transaction"
+                            className={`bg-[#fa6060] text-[14px] leading-[21.86px] font-[600] border-2 border-[#fa6060] text-white py-[5px] px-[20px] rounded-[50px] w-full`}
+                            loading={deleting}
+                            onClick={() => handleDeleteTransaction()}
+                        />
+                    </div>
+                    <div className='w-full flex justify-center items-center'>
+                        <Button
+                            type="submit"
+                            label="Update Transaction"
+                            className={`bg-transparent text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-[#FFA500] py-[5px] px-[20px] rounded-[50px] w-full`}
+                            loading={saving}
+                            onClick={() => handleUpdate()}
+                        />
+                    </div>
                 </div>
             </div>
         </Dialog>
