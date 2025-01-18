@@ -5,3 +5,23 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+
+/* Scoped scrollbar styles for specific components */
+.custom-scrollbar::-webkit-scrollbar {
+    width: 10px;
+}
+  
+.custom-scrollbar::-webkit-scrollbar-track {
+    background: #c9c9c9;
+}
+  
+.custom-scrollbar::-webkit-scrollbar-thumb {
+    background: #666666;
+    border-radius: 5px;
+}
+  
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+

@@ -30,8 +30,6 @@ export const SignUpSchema = Yup.object().shape({
 export const AccountSchema = Yup.object().shape({
     name: Yup.string()
       .required("Name is required!"),
-    balance: Yup.number()
-      .required("Balance is required!"),
     type: Yup.string()
       .required("Type is required!"),
     currency: Yup.string()
@@ -45,7 +43,8 @@ export const TransactionSchema = Yup.object().shape({
       .required("Type is required!"),
     categoryId: Yup.string()
       .required("Category is required!"),
-    subCategory: Yup.string(),
+    subCategoryId: Yup.string()
+      .required("Sub category is required!"),
     accountId: Yup.string()
       .required("Account is required!"),
     transactionDate: Yup.string()
@@ -69,3 +68,16 @@ export const CategorySchema = Yup.object().shape({
     name: Yup.string()
       .required("Field is required!"),
 });
+
+export const ReportRangeSchema = Yup.object().shape({
+  startDate: Yup.string()
+    .required("Field is required!")
+    .test("is-earlier", "Start date must be earlier than the end date!", function (value) {
+      const { endDate } = this.parent;
+      if (!value || !endDate) return true;
+      return new Date(value) < new Date(endDate);
+    }),
+  endDate: Yup.string()
+    .required("Field is required!"),
+});
+

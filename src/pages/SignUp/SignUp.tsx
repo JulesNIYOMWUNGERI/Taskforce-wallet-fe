@@ -54,7 +54,7 @@ const SignUp = () => {
   });
 
   return (
-      <div className='w-full h-full bg-[#FAFAFA]'>
+      <div className='w-full h-screen bg-[#FAFAFA]'>
         <div className='w-full h-full flex flex-col justify-center items-center p-6 gap-10'>
           <div className="flex flex-col justify-center items-center gap-[8px] w-full">
             <form

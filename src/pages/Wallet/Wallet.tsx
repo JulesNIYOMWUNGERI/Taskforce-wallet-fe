@@ -12,9 +12,7 @@ const Wallet = () => {
     const currentPage = searchParams.get("currentPage");
 
   return (
-    <div className='flex w-full h-full bg-[#FAFAFA]'>
-        <Sidebar />
-
+    <div className='flex w-full bg-[#FAFAFA]'>
         {currentPage === "Accounts" && <Accounts />}
         {currentPage === "Transactions" && <Transactions />}
         {currentPage === "Categories" && <Categories />}

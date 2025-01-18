@@ -10,7 +10,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import TableLoading from '../loader/TableLoading';
 import { apis } from '../../store/apis';
-import { TransactionSchema, UpdateTransactionSchema } from '../../utils/Validations/Validation';
+import { ReportRangeSchema, TransactionSchema, UpdateTransactionSchema } from '../../utils/Validations/Validation';
 
 const inputFieldStylingProps = {
     container: {
@@ -25,21 +25,6 @@ const inputFieldStylingProps = {
         'py-4 px-4 border-[1.5px] border-[#D6D6D6] outline-none bg-transparent rounded-md border border-gray-300 placeholder:text-gray-600',
     },
 };
-
-const SHOP_CATEGORIES = [
-    {
-        name: 'Paid with cash',
-        value: 'Paid with cash'
-    },
-    {
-        name: 'Paid with momo',
-        value: 'Paid with momo'
-    },
-    {
-        name: 'Debt',
-        value: 'Debt'
-    },
-]
 
 const TRANSACTION_TYPE = [
     {
@@ -63,6 +48,7 @@ const Transactions = () => {
   const [selectedTransaction, setSelectedTransaction] = useState<any>({});
   const [selectedCategory, setSelectedCategory] = useState<any>({});
   const [subCategoriesOptions, setSubCategoriesOptions] = useState([]);
+  const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
 
   const { 
     fetching,
@@ -83,6 +69,27 @@ const Transactions = () => {
     categories: state.getCategories.categories,
     user: state.signin.data,
   }));
+
+  const reportFormik = useFormik({
+    initialValues: {
+        startDate: "",
+        endDate: "",
+    },
+    validationSchema: ReportRangeSchema,
+    onSubmit: async (values) => {
+        const token = user?.access_token;
+
+        const data ={
+            formData: values,
+            token
+        }
+
+        await dispatch(apis.generateReport(data) as any);
+
+        reportFormik?.resetForm();
+        setIsReportDialogOpen(false); 
+    }
+  });
 
   const updatingFormik = useFormik({
     initialValues: {
@@ -122,7 +129,7 @@ const Transactions = () => {
         amount: "",
         type: "",
         categoryId: "",
-        subCategory: "",
+        subCategoryId: "",
         accountId: "",
         transactionDate: "",
         description: "",
@@ -173,7 +180,7 @@ const Transactions = () => {
         const transactionsWithAccountNames = sortedTransactions.map((transaction: any) => ({
             ...transaction,
             name: transaction?.account?.name || null,
-            category: transaction?.category?.name || null,
+            categoryName: transaction?.category?.parent?.name || transaction?.category?.name || null,
             transactionDate: transaction?.transactionDate?.split("T")[0] || null
         }));
 
@@ -254,7 +261,7 @@ const Transactions = () => {
     {field: 'name', header: 'Transaction account'},
     {field: 'type', header: 'Transaction type'},
     {field: 'amount', header: 'Amount'},
-    {field: 'category', header: 'Category'},
+    {field: 'categoryName', header: 'Category'},
     {field: 'transactionDate', header: 'Transaction Date'},
     { field: 'actions', header: 'Actions' }
   ];
@@ -274,19 +281,30 @@ const Transactions = () => {
   };
 
   return (
-    <div className='w-[79%] flex flex-col gap-4 p-8 overflow-y-auto'>
+    <div className='w-full flex flex-col gap-4 p-8 pb-10'>
         <div className='flex flex-col gap-4'>
             <div className='w-full flex justify-between items-center'>
                 <h1 className='font-extrabold text-[29px] text-[#71808e]'>Transactions</h1>
 
-                <Button
-                    type="submit"
-                    label="Create Transactions"
-                    className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
-                    onClick={() => {
-                        setIsDialogVisible(true);
-                    }}
-                />
+                <div className='flex justify-center items-center gap-4'>
+                    <Button
+                        type="submit"
+                        label="Generate report"
+                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
+                        onClick={() => {
+                            setIsReportDialogOpen(true);
+                        }}
+                    />
+
+                    <Button
+                        type="submit"
+                        label="Create Transactions"
+                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
+                        onClick={() => {
+                            setIsDialogVisible(true);
+                        }}
+                    />
+                </div>
             </div>
 
             <p className='font-bold text-[#656c73] text-[16px] text-justify'>
@@ -309,9 +327,77 @@ const Transactions = () => {
                     actionTemplate={actionTemplate}
                     columns={columns}
                     data={transactionsData}
+                    addPagination={true}
                 />
             )}
         </div>
+
+        <Dialog
+            header={`Generate PDF report`}
+            visible={isReportDialogOpen}
+            className='md:w-[80%]'
+            headerClassName='text-[#198b7b] text-[32px] custom-scrollbar'
+            modal
+            onHide={() => {
+                reportFormik?.resetForm();
+                setIsReportDialogOpen(false);
+            }}
+        >
+            <form 
+                className='flex flex-col gap-[20px]'
+                onSubmit={reportFormik.handleSubmit}
+            >
+                <div className='w-full flex justify-between items-center gap-5'>
+                    <div className="w-full flex flex-col">
+                        <InputField
+                            value={reportFormik.values.startDate}
+                            placeholder="Enter date"
+                            required={false}
+                            type="date"
+                            name="startDate"
+                            className="text-xs"
+                            label="Start date"
+                            onChange={reportFormik.handleChange}
+                            onBlur={reportFormik.handleBlur}
+                            {...inputFieldStylingProps}
+                        />
+                        {reportFormik.touched.startDate && reportFormik.errors.startDate ? (
+                            <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
+                                {reportFormik.errors.startDate}
+                            </p>
+                        ) : null}
+                    </div>
+                    <div className="w-full flex flex-col">
+                        <InputField
+                            value={reportFormik.values.endDate}
+                            placeholder="Enter date"
+                            required={false}
+                            type="date"
+                            name="endDate"
+                            className="text-xs"
+                            label="End date"
+                            onChange={reportFormik.handleChange}
+                            onBlur={reportFormik.handleBlur}
+                            {...inputFieldStylingProps}
+                        />
+                        {reportFormik.touched.endDate && reportFormik.errors.endDate ? (
+                            <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
+                                {reportFormik.errors.endDate}
+                            </p>
+                        ) : null}
+                    </div>
+                </div>
+            
+                <div className='w-full flex justify-center items-center'>
+                    <Button
+                        type="submit"
+                        label={`Generate report`}
+                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px] w-full`}
+                        // loading={updating}
+                    />
+                </div>
+            </form>
+        </Dialog>
 
         <Dialog
             header={`Create Transaction`}
@@ -390,18 +476,18 @@ const Transactions = () => {
                     <div className="w-full flex flex-col mt-1">
                         <h1 className='text-[12px] leading-[18.12px] font-[500] font-manrope text-black ml-[1px] mb-[2px]'>Sub category</h1>
                         <Dropdown
-                            value={formik.values.subCategory}
+                            value={formik.values.subCategoryId}
                             onChange={formik.handleChange}
                             onBlur={formik.handleBlur}
-                            name="subCategory"
+                            name="subCategoryId"
                             options={subCategoriesOptions}
                             optionLabel="name"
                             placeholder="Select sub category"
                             className="w-full border-[1.5px] border-[#D6D6D6] bg-[#ffffff3a] placeholder:text-gray-600"
                         />
-                        {formik.touched.subCategory && formik.errors.subCategory ? (
+                        {formik.touched.subCategoryId && formik.errors.subCategoryId ? (
                             <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
-                                {formik.errors.subCategory}
+                                {formik.errors.subCategoryId}
                             </p>
                         ) : null}
                     </div>
@@ -626,7 +712,7 @@ const Transactions = () => {
                 <div className='w-full flex justify-between items-center'>
                     <div className='flex justify-center items-center gap-2'>
                         <span className='font-[600] text-[18px]'>Category: </span>
-                        <h1 className='text-[16px] mt-[1px]'>{selectedTransaction?.category?.name}</h1>
+                        <h1 className='text-[16px] mt-[1px]'>{selectedTransaction?.category?.parent?.name || selectedTransaction?.category?.name}</h1>
                     </div>
 
                     <div className='flex justify-center items-center gap-2'>
@@ -634,6 +720,14 @@ const Transactions = () => {
                         <h1 className='text-[16px] mt-[1px]'>{selectedTransaction?.transactionDate?.split('T')[0]}</h1>
                     </div>
                 </div>
+
+                <div className='w-full flex justify-between items-center'>
+                    <div className='flex justify-center items-center gap-2'>
+                        <span className='font-[600] text-[18px]'>Sub Category: </span>
+                        <h1 className='text-[16px] mt-[1px]'>{selectedTransaction?.category?.parentId === null ? null : selectedTransaction?.category?.name}</h1>
+                    </div>
+                </div>
+
                 <div className='w-full flex justify-between items-center'>
                     <div className='flex justify-center items-start gap-2'>
                         <span className='font-[600] text-[18px]'>Description: </span>

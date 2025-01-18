@@ -1,4 +1,6 @@
-import React from 'react'
+import { Button } from 'primereact/button';
+import { Dialog } from 'primereact/dialog';
+import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const Items = [
@@ -13,7 +15,7 @@ const Items = [
     },
     {
         name: 'Settings'
-    },
+    }
 ]
 
 const Sidebar = () => {
@@ -22,6 +24,8 @@ const Sidebar = () => {
   const currentPath = location.pathname;
   const searchParams = new URLSearchParams(location.search);
   const currentPage = searchParams.get("currentPage");
+
+  const [isDialogVisible, setIsDialogVisible] = useState(false)
 
   const updateQuery = (searchQuery: string) => {
     const currentQuery = location.search
@@ -38,10 +42,10 @@ const Sidebar = () => {
   };
 
   return (
-    <div className='flex flex-col self-stretch bg-[#f6dcab] w-[21%] h-screen p-8'>
+    <div className='flex flex-col self-stretch bg-[#f6dcab] w-full h-screen p-8'>
         <div className='w-full h-full flex flex-col gap-10'>
             <div className='flex flex-col'>
-                <h1 className='font-extrabold text-[25px] text-[#70808f]'>
+                <h1 className='font-extrabold text-[25px] text-[#70808f] px-1'>
                     LOGO
                 </h1>
             </div>
@@ -50,7 +54,7 @@ const Sidebar = () => {
                 {Items?.map((i, index) => (
                     <div 
                         key={index} 
-                        className='flex cursor-pointer justify-start items-center gap-1' 
+                        className='flex cursor-pointer justify-start items-center gap-1 hover:bg-[#ffffff36] px-1 rounded-[5px]' 
                         onClick={() => updateQuery(i?.name)}
                     >
                         <h1 className='font-bold text-[20px] text-[#636c72]'>
@@ -60,8 +64,44 @@ const Sidebar = () => {
                         {(currentPage === "Category_details" && i?.name === "Categories")&& (<div className='h-2 w-2 rounded-full bg-[#fea500]' />)}
                     </div>
                 ))}
+                <button 
+                    className='flex font-bold text-[20px] text-[#636c72] cursor-pointer hover:bg-[#ffffff36] px-1 rounded-[5px]'
+                    onClick={() => setIsDialogVisible(true)}
+                >
+                    Logout
+                </button>
             </div>
         </div>
+
+        <Dialog
+            header={`Logout`}
+            visible={isDialogVisible}
+            className='md:w-[25%]'
+            headerClassName='text-[#198b7b] text-[32px] custom-scrollbar'
+            modal
+            onHide={() => {
+                setIsDialogVisible(false);
+            }}
+        >
+            <div className='flex flex-col gap-8'>
+                <p>are you sure you want to Logout?</p>
+                <div className='w-full flex justify-center items-center gap-10'>
+                    <Button
+                        type="submit"
+                        label={`Cancel`}
+                        className={`bg-transparent text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-[#FFA500] py-[5px] px-[20px] rounded-[10px] w-full`}
+                        onClick={() => setIsDialogVisible(false)}
+                        // loading={saving}
+                    />
+                    <Button
+                        type="submit"
+                        label={`Logout`}
+                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[10px] w-full`}
+                        // loading={saving}
+                    />
+                </div>
+            </div>
+        </Dialog>
     </div>
   )
 }

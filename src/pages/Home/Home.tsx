@@ -5,7 +5,7 @@ const Home = () => {
   const navigate = useNavigate();
 
   return (
-    <div className='bg-[#FAFAFA] h-full w-full'>
+    <div className='bg-[#FAFAFA] h-screen w-full'>
         <div className='w-full h-full flex flex-col justify-center items-center p-6 gap-10'>
             <div className='flex flex-col justify-center items-center w-[65%] gap-4'>
                 <h1 className='text-[40px] text-[#000000c5] font-[600]'>Welcome to Wallet management</h1>
