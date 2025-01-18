@@ -147,8 +147,6 @@ const Transactions = () => {
 
         const res = await dispatch(apis.createTransaction(data) as any);
 
-        console.log(res?.payload?.transaction?.budgetExceedMessage, "[[[[[[[[[[[[[[[[[[[[[[[[}}}}}}}}}}}}}}}}]")
-
         dispatch(apis?.getTransactions(token) as any);
 
         if (res?.payload?.transaction?.budgetExceedMessage) {
