@@ -149,9 +149,9 @@ const createTransaction = createAsyncThunk(
         Authorization: `Bearer ${data?.token}`,
       };
 
-      const {accountId, categoryId, subCategory, ...bodyData} = data?.formData
+      const {accountId, categoryId, subCategoryId, ...bodyData} = data?.formData
 
-      const response = await api.post(`/transactions/${accountId}/${categoryId}`, bodyData, { headers });
+      const response = await api.post(`/transactions/${accountId}/${subCategoryId}`, bodyData, { headers });
 
       toast.success(response?.data?.message)
 
@@ -198,6 +198,41 @@ const deleteTransaction = createAsyncThunk(
       const response = await api.delete(`/transactions/${data?.id}`, { headers });
 
       toast.success(response?.data?.message)
+
+      return response.data;
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError;
+      toast.error((axiosError?.response?.data as { message: string })?.message)
+      return rejectWithValue({ error: axiosError?.response });
+    }
+  }
+);
+
+const generateReport = createAsyncThunk(
+  "generateReport",
+  async (data: {formData: { startDate: string, endDate: string }, token: string}, { rejectWithValue }) => {
+    try {
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${data?.token}`,
+      };
+
+      const {startDate, endDate} = data?.formData;
+
+      const response = await api.get(`/transactions/report/pdf?startDate=${startDate}&endDate=${endDate}`, {headers,   responseType: 'blob'});
+
+      const blob = new Blob([response.data], { type: 'application/pdf' });
+
+      const link = document.createElement('a');
+
+      link.href = URL.createObjectURL(blob);
+      link.download = 'transactions_report.pdf';
+
+      document.body.appendChild(link);
+
+      link.click();
+
+      document.body.removeChild(link);
 
       return response.data;
     } catch (error: unknown) {
@@ -296,4 +331,4 @@ const deleteCategory = createAsyncThunk(
 
 const reset = createAction('reset');
 
-export const apis = { signin, signup, getAccounts, createAccount, updateAccount, deleteAccount, getTransactions, createTransaction, updateTransaction, deleteTransaction, getCategories, createCategory, updateCategory, deleteCategory, reset }
+export const apis = { signin, signup, getAccounts, createAccount, updateAccount, deleteAccount, getTransactions, createTransaction, updateTransaction, deleteTransaction, getCategories, createCategory, updateCategory, deleteCategory, generateReport, reset }

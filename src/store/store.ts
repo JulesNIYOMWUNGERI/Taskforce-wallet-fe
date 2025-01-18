@@ -19,6 +19,7 @@ import getTransactions from './slices/Transactions/getTransactions'
 import createTransaction from './slices/Transactions/createTransactions'
 import updateTransaction from './slices/Transactions/updateTransaction'
 import deleteTransaction from './slices/Transactions/deleteTransaction'
+import generateReport from './slices/Transactions/generateReport'
 import getCategories from './slices/Categories/getCategories'
 import createCategory from './slices/Categories/createCategory'
 import updateCategory from './slices/Categories/updateCategory'
@@ -41,6 +42,7 @@ const reducer = combineReducers({
   createTransaction,
   updateTransaction,
   deleteTransaction,
+  generateReport,
   getCategories,
   createCategory,
   updateCategory,

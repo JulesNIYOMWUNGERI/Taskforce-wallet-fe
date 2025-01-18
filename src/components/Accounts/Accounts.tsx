@@ -81,7 +81,6 @@ const Accounts = () => {
     initialValues: {
         name: "",
         type: "",
-        balance: "",
         currency: "",
     },
     validationSchema: AccountSchema,
@@ -104,10 +103,7 @@ const Accounts = () => {
             }
         } else {
             const data ={
-                updatedAccount: {
-                    ...values,
-                    balance: Number(values?.balance)
-                },
+                updatedAccount: values,
                 token,
                 accountId: selectedAccount?.id
             }
@@ -151,7 +147,6 @@ const Accounts = () => {
     formik?.setValues({
         name: selectedAccount?.name,
         type: selectedAccount?.type,
-        balance: selectedAccount?.balance,
         currency: selectedAccount?.currency,
     })
 
@@ -205,7 +200,7 @@ const Accounts = () => {
   };
 
   return (
-    <div className='w-[79%] flex flex-col gap-4 p-8 overflow-y-auto'>
+    <div className='w-full flex flex-col gap-4 p-8'>
         <div className='flex flex-col gap-4'>
             <div className='w-full flex justify-between items-center'>
                 <h1 className='font-extrabold text-[29px] text-[#71808e]'>Accounts</h1>
@@ -297,25 +292,6 @@ const Accounts = () => {
                     {formik.touched.type && formik.errors.type ? (
                         <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
                             {formik.errors.type}
-                        </p>
-                    ) : null}
-                </div>
-                <div className="w-full flex flex-col">
-                    <InputField
-                        value={formik.values.balance}
-                        placeholder="Enter account balance"
-                        required={false}
-                        type="number"
-                        name="balance"
-                        className="text-xs"
-                        label="Account balance"
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        {...inputFieldStylingProps}
-                    />
-                    {formik.touched.balance && formik.errors.balance ? (
-                        <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
-                            {formik.errors.balance}
                         </p>
                     ) : null}
                 </div>

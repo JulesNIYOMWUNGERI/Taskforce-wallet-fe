@@ -199,7 +199,7 @@ const Categories = () => {
   };
 
   return (
-    <div className='w-[79%] flex flex-col gap-4 p-8 overflow-y-auto'>
+    <div className='w-full flex flex-col gap-4 p-8'>
         <div className='flex flex-col gap-4'>
             <div className='w-full flex justify-between items-center'>
                 <h1 className='font-extrabold text-[29px] text-[#71808e]'>Categories</h1>
@@ -235,6 +235,7 @@ const Categories = () => {
                     actionTemplate={actionTemplate}
                     columns={columns}
                     data={categoriesData}
+                    addPagination={true}
                 />
             )}
         </div>
