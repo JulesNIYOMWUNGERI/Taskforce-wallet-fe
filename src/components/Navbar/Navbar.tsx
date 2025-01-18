@@ -1,4 +1,3 @@
-import React from 'react'
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
 import { FaCaretDown } from "react-icons/fa";
@@ -9,8 +8,6 @@ const Navbar = () => {
   } = useSelector((state: RootState) =>  ({
     user: state.signin.data,
   }));
-
-  console.log(user)
 
   return (
     <div className='h-[75px] w-full bg-[#1b1b1b] flex justify-center items-center relative'>

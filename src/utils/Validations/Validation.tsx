@@ -81,3 +81,8 @@ export const ReportRangeSchema = Yup.object().shape({
     .required("Field is required!"),
 });
 
+export const BudgetLimitSchema = Yup.object().shape({
+  budgetLimit: Yup.number()
+    .required("Field is required!"),
+});
+

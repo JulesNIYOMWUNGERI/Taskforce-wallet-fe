@@ -49,6 +49,8 @@ const Transactions = () => {
   const [selectedCategory, setSelectedCategory] = useState<any>({});
   const [subCategoriesOptions, setSubCategoriesOptions] = useState([]);
   const [isReportDialogOpen, setIsReportDialogOpen] = useState(false);
+  const [isNotificationDialogVisible, setIsNotificationDialogVisible] = useState(false);
+  const [budgetExceedMessage, setBudgetExceedMessage] = useState('');
 
   const { 
     fetching,
@@ -145,7 +147,15 @@ const Transactions = () => {
 
         const res = await dispatch(apis.createTransaction(data) as any);
 
+        console.log(res?.payload?.transaction?.budgetExceedMessage, "[[[[[[[[[[[[[[[[[[[[[[[[}}}}}}}}}}}}}}}}]")
+
         dispatch(apis?.getTransactions(token) as any);
+
+        if (res?.payload?.transaction?.budgetExceedMessage) {
+            setBudgetExceedMessage(res?.payload?.transaction?.budgetExceedMessage);
+
+            setIsNotificationDialogVisible(true)
+        }
 
         if (res?.payload?.message) {
             formik?.resetForm();
@@ -397,6 +407,29 @@ const Transactions = () => {
                     />
                 </div>
             </form>
+        </Dialog>
+
+        <Dialog
+            header={`Budget exceed`}
+            visible={isNotificationDialogVisible}
+            className='md:w-[35%]'
+            headerClassName='text-[#198b7b] text-[32px] custom-scrollbar'
+            modal
+            onHide={() => {
+                setIsNotificationDialogVisible(false);
+            }}
+        >
+            <div className='flex flex-col gap-8'>
+                <p>{budgetExceedMessage}</p>
+                <div className='w-full flex justify-center items-center gap-10'>
+                    <Button
+                        type="submit"
+                        label={`Dismiss`}
+                        className={`bg-transparent text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-[#FFA500] py-[5px] px-[20px] rounded-[10px] w-full`}
+                        onClick={() => setIsNotificationDialogVisible(false)}
+                    />
+                </div>
+            </div>
         </Dialog>
 
         <Dialog

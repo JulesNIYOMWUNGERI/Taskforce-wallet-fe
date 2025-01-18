@@ -1,5 +1,5 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
-import {apis} from "../apis";
+import {apis} from "../../apis";
 
 const signUpSlice = createSlice({
   name: "signup",

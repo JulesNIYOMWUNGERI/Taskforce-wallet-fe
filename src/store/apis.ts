@@ -33,6 +33,48 @@ const signup = createAsyncThunk(
     }
 );
 
+const setBudgetLimit = createAsyncThunk(
+  "setBudgetLimit",
+  async (data: { formData: any, token: string }, { rejectWithValue }) => {
+    try {
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${data?.token}`,
+      };
+
+      const response = await api.patch('/users/set_budget', data?.formData, { headers });
+
+      toast.success(response?.data?.message)
+
+      return response.data;
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError;
+      toast.error((axiosError?.response?.data as { message: string })?.message)
+      return rejectWithValue({ error: axiosError?.response });
+    }
+  }
+);
+
+const getUserBudget = createAsyncThunk(
+  "getUserBudget",
+  async (token: string, { rejectWithValue }) => {
+    try {
+      const headers = {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`,
+      };
+
+      const response = await api.get(`/users/user-budget`, {headers});
+
+      return response.data;
+    } catch (error: unknown) {
+      const axiosError = error as AxiosError;
+      toast.error((axiosError?.response?.data as { message: string })?.message)
+      return rejectWithValue({ error: axiosError?.response });
+    }
+  }
+);
+
 const getAccounts = createAsyncThunk(
     "getAccounts",
     async (token: string, { rejectWithValue }) => {
@@ -331,4 +373,4 @@ const deleteCategory = createAsyncThunk(
 
 const reset = createAction('reset');
 
-export const apis = { signin, signup, getAccounts, createAccount, updateAccount, deleteAccount, getTransactions, createTransaction, updateTransaction, deleteTransaction, getCategories, createCategory, updateCategory, deleteCategory, generateReport, reset }
+export const apis = { signin, signup, setBudgetLimit, getUserBudget, getAccounts, createAccount, updateAccount, deleteAccount, getTransactions, createTransaction, updateTransaction, deleteTransaction, getCategories, createCategory, updateCategory, deleteCategory, generateReport, reset }
