@@ -1,6 +1,4 @@
-import React from 'react'
 import { useLocation } from 'react-router-dom';
-import Sidebar from '../../components/SideBar/Sidebar'
 import Accounts from '../../components/Accounts/Accounts';
 import Transactions from '../../components/Transactions/Transactions';
 import Categories from '../../components/Categories/Categories';

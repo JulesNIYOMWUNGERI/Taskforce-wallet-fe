@@ -9,8 +9,10 @@ import {
     PURGE,
     REGISTER,
 } from 'redux-persist'
-import signin from './slices/signin'
-import signup from './slices/signup'
+import signin from './slices/Users/signin'
+import signup from './slices/Users/signup'
+import setBudgetLimit from './slices/Users/setBudget'
+import getUserBudget from './slices/Users/getUserBudget'
 import getAccounts from './slices/Accounts/getAccounts'
 import createAccount from './slices/Accounts/createAccount'
 import updateAccount from './slices/Accounts/updateAccount'
@@ -34,6 +36,8 @@ const persistConfig = {
 const reducer = combineReducers({
   signin,
   signup,
+  setBudgetLimit,
+  getUserBudget,
   getAccounts,
   createAccount,
   updateAccount,
