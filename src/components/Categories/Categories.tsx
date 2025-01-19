@@ -207,7 +207,7 @@ const Categories = () => {
                 <Button
                     type="submit"
                     label="Create category"
-                    className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
+                    className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[6px]`}
                     onClick={() => {
                         setIsDialogVisible(true);
                         setIsUpdating(false);
@@ -216,14 +216,15 @@ const Categories = () => {
             </div>
 
             <p className='font-bold text-[#656c73] text-[16px] text-justify'>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-                Sed do eiusmod tempor incididunt ut labore et dolore 
-                magna aliqua. Ut enim ad minim veniam, quis nostrud 
-                exercitation ullamco laboris nisi ut aliquip ex ea commodo 
-                consequat. Duis aute irure dolor in reprehenderit in voluptate 
-                velit esse cillum dolore eu fugiat nulla pariatur. Excepteur 
-                sint occaecat cupidatat non proident, sunt in culpa qui 
-                officia deserunt mollit anim id est laborum.
+                Organize your finances by grouping transactions into categories 
+                that make sense to you. Whether it's food, transportation, or 
+                entertainment, create custom categories to help you understand 
+                where your money is going. You can add, edit, or delete categories 
+                at any time to adapt to your spending habits. Categories make it 
+                easier to analyze your financial data, identify trends, and make 
+                informed decisions. With clear organization, you can budget more 
+                effectively and track your expenses in a way that aligns with 
+                your financial goals.
             </p>
         </div>
 
@@ -279,7 +280,7 @@ const Categories = () => {
                     <Button
                         type="submit"
                         label={`${isUpdating ? "Update" : "Create"} Category`}
-                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px] w-full`}
+                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[6px] w-full`}
                         loading={saving || updating}
                     />
                 </div>

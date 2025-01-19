@@ -208,7 +208,7 @@ const Accounts = () => {
                 <Button
                     type="submit"
                     label="Create Account"
-                    className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
+                    className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[6px]`}
                     loading={saving}
                     onClick={() => {
                         setIsDialogVisible(true);
@@ -218,14 +218,13 @@ const Accounts = () => {
             </div>
 
             <p className='font-bold text-[#656c73] text-[16px] text-justify'>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-                Sed do eiusmod tempor incididunt ut labore et dolore 
-                magna aliqua. Ut enim ad minim veniam, quis nostrud 
-                exercitation ullamco laboris nisi ut aliquip ex ea commodo 
-                consequat. Duis aute irure dolor in reprehenderit in voluptate 
-                velit esse cillum dolore eu fugiat nulla pariatur. Excepteur 
-                sint occaecat cupidatat non proident, sunt in culpa qui 
-                officia deserunt mollit anim id est laborum.
+                Manage all your accounts in one place. Add, edit, 
+                or view your bank accounts, mobile wallets, or cash. 
+                Track balances and ensure all transactions are accounted 
+                for across different sources. Stay organized by linking 
+                multiple accounts for a clear overview of your financial 
+                status. Easily monitor your spending and ensure accurate 
+                budgeting across all your financial resources.
             </p>
         </div>
 
@@ -319,7 +318,7 @@ const Accounts = () => {
                     <Button
                         type="submit"
                         label={`${isUpdating ? "Update" : "Create"} Account`}
-                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px] w-full`}
+                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[6px] w-full`}
                         loading={saving || updating}
                     />
                 </div>
@@ -379,7 +378,7 @@ const Accounts = () => {
                         <Button
                             type="submit"
                             label="Delete Account"
-                            className={`bg-[#fa6060] text-[14px] leading-[21.86px] font-[600] border-2 border-[#fa6060] text-white py-[5px] px-[20px] rounded-[50px] w-full`}
+                            className={`bg-[#fa6060] text-[14px] leading-[21.86px] font-[600] border-2 border-[#fa6060] text-white py-[5px] px-[20px] rounded-[6px] w-full`}
                             loading={deleting}
                             onClick={() => handleDeleteAccount()} 
                         />
@@ -388,7 +387,7 @@ const Accounts = () => {
                         <Button
                             type="submit"
                             label="Update Account"
-                            className={`bg-transparent text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-[#FFA500] py-[5px] px-[20px] rounded-[50px] w-full`}
+                            className={`bg-transparent text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-[#FFA500] py-[5px] px-[20px] rounded-[6px] w-full`}
                             loading={saving}
                             onClick={() => handleUpdate()}
                         />

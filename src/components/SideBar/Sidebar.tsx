@@ -99,13 +99,21 @@ const Sidebar = () => {
     navigate(newPath, { replace: true });
   };
 
+  const logout = () => {
+    navigate("/");
+
+    dispatch(apis.reset());
+
+    localStorage.clear();
+  }
+
   return (
     <div className='flex flex-col self-stretch bg-[#f6dcab] w-full h-screen p-8'>
         <div className='w-full h-full flex flex-col gap-10'>
             <div className='flex flex-col'>
-                <h1 className='font-extrabold text-[25px] text-[#70808f] px-1'>
-                    LOGO
-                </h1>
+                <div className='font-extrabold text-[25px] text-[#70808f] px-1 w-[150px]'>
+                    <img src="https://www.codeofafrica.com/images/Logos/coa-logo-outline.svg" alt="" />
+                </div>
             </div>
 
             <div className='flex flex-col gap-8'>
@@ -182,7 +190,7 @@ const Sidebar = () => {
                     <Button
                         type="submit"
                         label={`Set budget`}
-                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px] w-full`}
+                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[6px] w-full`}
                         loading={setting}
                     />
                 </div>
@@ -205,15 +213,15 @@ const Sidebar = () => {
                     <Button
                         type="submit"
                         label={`Cancel`}
-                        className={`bg-transparent text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-[#FFA500] py-[5px] px-[20px] rounded-[10px] w-full`}
+                        className={`bg-transparent text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-[#FFA500] py-[5px] px-[20px] rounded-[6px] w-full`}
                         onClick={() => setIsDialogVisible(false)}
                         // loading={saving}
                     />
                     <Button
                         type="submit"
                         label={`Logout`}
-                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[10px] w-full`}
-                        // loading={saving}
+                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[6px] w-full`}
+                        onClick={() => logout()}
                     />
                 </div>
             </div>
