@@ -137,7 +137,7 @@ const SignUp = () => {
               <Button
                 type="submit"
                 label="SignUp"
-                className={`bg-[#FFA500] text-[16px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[10px] rounded-[50px] w-full mt-4`}
+                className={`bg-[#FFA500] text-[16px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[10px] rounded-[6px] w-full mt-4`}
                 loading={registering}
               />
             </form>

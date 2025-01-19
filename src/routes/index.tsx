@@ -1,10 +1,12 @@
-import { createBrowserRouter, Outlet } from "react-router-dom";
+import { createBrowserRouter, Navigate, Outlet } from "react-router-dom";
 import Navbar from "../components/Navbar/Navbar";
 import Home from "../pages/Home/Home";
 import SignUp from "../pages/SignUp/SignUp";
 import SignIn from "../pages/SignIn/SignIn";
 import Wallet from "../pages/Wallet/Wallet";
 import Sidebar from "../components/SideBar/Sidebar";
+import { useSelector } from "react-redux";
+import { RootState } from "../store/store";
 
 const Layout = () => {
   return (
@@ -21,6 +23,13 @@ const Layout = () => {
 };
 
 
+const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
+  const user = useSelector((state: RootState) => state.signin.data);
+
+  return user?.access_token ? children : <Navigate to="/signin" />;
+};
+
+
 const router = createBrowserRouter([
   {
     path: "/",
@@ -28,7 +37,11 @@ const router = createBrowserRouter([
   },
   {
     path: "/wallet",
-    element: <Layout />,
+    element: (
+      <ProtectedRoute>
+        <Layout />
+      </ProtectedRoute>
+    ),
     children: [
         {
           path: "",

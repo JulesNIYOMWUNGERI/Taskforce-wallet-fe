@@ -298,7 +298,7 @@ const Transactions = () => {
                     <Button
                         type="submit"
                         label="Generate report"
-                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
+                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[6px]`}
                         onClick={() => {
                             setIsReportDialogOpen(true);
                         }}
@@ -307,7 +307,7 @@ const Transactions = () => {
                     <Button
                         type="submit"
                         label="Create Transactions"
-                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px]`}
+                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[6px]`}
                         onClick={() => {
                             setIsDialogVisible(true);
                         }}
@@ -316,14 +316,15 @@ const Transactions = () => {
             </div>
 
             <p className='font-bold text-[#656c73] text-[16px] text-justify'>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. 
-                Sed do eiusmod tempor incididunt ut labore et dolore 
-                magna aliqua. Ut enim ad minim veniam, quis nostrud 
-                exercitation ullamco laboris nisi ut aliquip ex ea commodo 
-                consequat. Duis aute irure dolor in reprehenderit in voluptate 
-                velit esse cillum dolore eu fugiat nulla pariatur. Excepteur 
-                sint occaecat cupidatat non proident, sunt in culpa qui 
-                officia deserunt mollit anim id est laborum.
+                Keep track of your income and expenses in detail. 
+                View all your transactions, including the date, 
+                amount, type, and related categories. Whether it's a 
+                small purchase or a large income deposit, everything 
+                is recorded for easy access. Sort and filter your 
+                transactions by date, category, or type to gain insights 
+                into your financial behavior. Manage your finances effortlessly 
+                by staying on top of every transaction and ensuring that 
+                your records are accurate for budgeting and reporting.
             </p>
         </div>
 
@@ -400,7 +401,7 @@ const Transactions = () => {
                     <Button
                         type="submit"
                         label={`Generate report`}
-                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px] w-full`}
+                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[6px] w-full`}
                         // loading={updating}
                     />
                 </div>
@@ -423,7 +424,7 @@ const Transactions = () => {
                     <Button
                         type="submit"
                         label={`Dismiss`}
-                        className={`bg-transparent text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-[#FFA500] py-[5px] px-[20px] rounded-[10px] w-full`}
+                        className={`bg-transparent text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-[#FFA500] py-[5px] px-[20px] rounded-[6px] w-full`}
                         onClick={() => setIsNotificationDialogVisible(false)}
                     />
                 </div>
@@ -589,7 +590,7 @@ const Transactions = () => {
                     <Button
                         type="submit"
                         label={`Create Transaction`}
-                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px] w-full`}
+                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[6px] w-full`}
                         loading={saving}
                     />
                 </div>
@@ -698,7 +699,7 @@ const Transactions = () => {
                     <Button
                         type="submit"
                         label={`Update Transaction`}
-                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[50px] w-full`}
+                        className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[6px] w-full`}
                         loading={updating}
                     />
                 </div>
@@ -771,7 +772,7 @@ const Transactions = () => {
                         <Button
                             type="submit"
                             label="Delete Transaction"
-                            className={`bg-[#fa6060] text-[14px] leading-[21.86px] font-[600] border-2 border-[#fa6060] text-white py-[5px] px-[20px] rounded-[50px] w-full`}
+                            className={`bg-[#fa6060] text-[14px] leading-[21.86px] font-[600] border-2 border-[#fa6060] text-white py-[5px] px-[20px] rounded-[6px] w-full`}
                             loading={deleting}
                             onClick={() => handleDeleteTransaction()}
                         />
@@ -780,7 +781,7 @@ const Transactions = () => {
                         <Button
                             type="submit"
                             label="Update Transaction"
-                            className={`bg-transparent text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-[#FFA500] py-[5px] px-[20px] rounded-[50px] w-full`}
+                            className={`bg-transparent text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-[#FFA500] py-[5px] px-[20px] rounded-[6px] w-full`}
                             loading={saving}
                             onClick={() => handleUpdate()}
                         />
