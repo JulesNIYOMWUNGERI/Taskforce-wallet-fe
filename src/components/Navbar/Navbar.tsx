@@ -1,6 +1,5 @@
 import { useSelector } from 'react-redux';
 import { RootState } from '../../store/store';
-import { FaCaretDown } from "react-icons/fa";
 
 const Navbar = () => {
   const { 
