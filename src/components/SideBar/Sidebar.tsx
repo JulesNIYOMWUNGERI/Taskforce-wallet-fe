@@ -215,7 +215,6 @@ const Sidebar = () => {
                         label={`Cancel`}
                         className={`bg-transparent text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-[#FFA500] py-[5px] px-[20px] rounded-[6px] w-full`}
                         onClick={() => setIsDialogVisible(false)}
-                        // loading={saving}
                     />
                     <Button
                         type="submit"
