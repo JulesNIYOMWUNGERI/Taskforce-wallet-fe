@@ -141,6 +141,17 @@ const SignUp = () => {
                 loading={registering}
               />
             </form>
+            <div className="w-full flex justify-center items-center mt-1">
+              <a
+                href="/signin"
+                className="text-[#999EA1] font-manrope text-[14px] font-[600] leading-[19.12px]"
+              >
+                Already have an account?{' '}
+                <span className="text-[#FFA500] font-manrope text-[14px] font-[600] leading-[19.12px]">
+                  Login
+                </span>
+              </a>
+            </div>
           </div>
         </div>
       </div>

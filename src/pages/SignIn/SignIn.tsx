@@ -116,7 +116,20 @@ const SignIn = () => {
                 className={`bg-[#FFA500] text-[16px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[10px] rounded-[6px] w-full mt-4`}
                 loading={loading}
               />
+
             </form>
+            <div className="w-full flex justify-center items-center mt-1">
+              <a
+                href="/signup"
+                className="text-[#999EA1] font-manrope text-[14px] font-[600] leading-[19.12px]"
+              >
+                Don’t have an account?{' '}
+                <span className="text-[#FFA500] font-manrope text-[14px] font-[600] leading-[19.12px]">
+                  Sign Up
+                </span>
+              </a>
+            </div>
+
           </div>
         </div>
     </div>
