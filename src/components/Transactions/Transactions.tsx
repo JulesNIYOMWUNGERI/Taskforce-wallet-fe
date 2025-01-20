@@ -402,7 +402,6 @@ const Transactions = () => {
                         type="submit"
                         label={`Generate report`}
                         className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[6px] w-full`}
-                        // loading={updating}
                     />
                 </div>
             </form>

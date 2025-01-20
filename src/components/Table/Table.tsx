@@ -89,7 +89,7 @@ const Table = ({
                         header={col.header}
                         body={
                                 col.field === '#'
-                                    ? (_, { rowIndex }: any) => formatIndexId(rowIndex) // Format index as ID
+                                    ? (_, { rowIndex }: any) => formatIndexId(rowIndex)
                                     : col.field === 'status'
                                     ? statusTemplate
                                     : col.field === 'actions'
