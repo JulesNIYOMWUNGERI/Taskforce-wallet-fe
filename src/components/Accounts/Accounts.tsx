@@ -39,6 +39,21 @@ const ACCOUNT_TYPE = [
         name: 'Cash',
         value: 'Cash'
     },
+];
+
+const CURRENCY_TYPE = [
+    {
+        name: 'RWF',
+        value: 'RWF'
+    },
+    {
+        name: 'USD',
+        value: 'USD'
+    },
+    {
+        name: 'ZAR',
+        value: 'ZAR'
+    },
 ]
 
 interface Account {
@@ -209,7 +224,6 @@ const Accounts = () => {
                     type="submit"
                     label="Create Account"
                     className={`bg-[#FFA500] text-[14px] leading-[21.86px] font-[600] border-2 border-[#FFA500] text-white py-[5px] px-[20px] rounded-[6px]`}
-                    loading={saving}
                     onClick={() => {
                         setIsDialogVisible(true);
                         setIsUpdating(false)
@@ -295,17 +309,16 @@ const Accounts = () => {
                     ) : null}
                 </div>
                 <div className="w-full flex flex-col">
-                    <InputField
+                    <h1 className='text-[14px] leading-[18.12px] font-[700] font-manrope text-[#74858e] ml-[1px] mb-1'>Account Currency</h1>
+                    <Dropdown
                         value={formik.values.currency}
-                        placeholder="Enter account currency"
-                        required={false}
-                        type="text"
-                        name="currency"
-                        className="text-xs"
-                        label="Account Currency"
                         onChange={formik.handleChange}
                         onBlur={formik.handleBlur}
-                        {...inputFieldStylingProps}
+                        name="currency"
+                        options={CURRENCY_TYPE}
+                        optionLabel="name"
+                        placeholder="Select currency"
+                        className="w-full border-[1.5px] border-[#D6D6D6] bg-[#ffffff3a] placeholder:text-gray-600"
                     />
                     {formik.touched.currency && formik.errors.currency ? (
                         <p className="flex px-[3px] text-[9px] text-center text-red-600 self-stretch">
